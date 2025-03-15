@@ -8,6 +8,8 @@ import {
   pathResolve,
   __APP_INFO__
 } from "./build/utils";
+// 从 .env.development 文件中读取 VITE_BASE_API 的值
+const { VITE_BASE_API } = process.env;
 
 export default ({ mode }: ConfigEnv): UserConfigExport => {
   const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } =
@@ -24,7 +26,18 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       port: VITE_PORT,
       host: "0.0.0.0",
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
-      proxy: {},
+      proxy: {
+        [VITE_BASE_API]: {
+          target: "http://localhost:8080",
+          changeOrigin: true,
+          rewrite: path => path.replace(new RegExp(`^${VITE_BASE_API}`), "")
+        }
+        // "/api/v1": {
+        //   target: "http://localhost:8080",
+        //   changeOrigin: true,
+        //   rewrite: path => path.replace(/^\/api\/v1/, "")
+        // }
+      },
       // 预热文件以提前转换和缓存结果，降低启动期间的初始页面加载时长并防止转换瀑布
       warmup: {
         clientFiles: ["./index.html", "./src/{views,components}/*"]
