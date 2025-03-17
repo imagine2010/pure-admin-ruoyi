@@ -136,7 +136,7 @@ declare global {
     showLogo?: boolean;
     showModel?: string;
     menuSearchHistory?: number;
-    username?: string;
+    userName?: string;
   }
 
   /**

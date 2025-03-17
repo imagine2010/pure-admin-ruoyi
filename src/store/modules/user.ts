@@ -29,9 +29,9 @@ export const useUserStore = defineStore({
     // 头像
     avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "",
     // 用户名
-    username: storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "",
+    userName: storageLocal().getItem<DataInfo<number>>(userKey)?.userName ?? "",
     // 昵称
-    nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "",
+    nickName: storageLocal().getItem<DataInfo<number>>(userKey)?.nickName ?? "",
     // 页面级别权限
     roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [],
     // 按钮级别权限
@@ -48,12 +48,12 @@ export const useUserStore = defineStore({
       this.avatar = avatar;
     },
     /** 存储用户名 */
-    SET_USERNAME(username: string) {
-      this.username = username;
+    SET_USERNAME(userName: string) {
+      this.userName = userName;
     },
     /** 存储昵称 */
-    SET_NICKNAME(nickname: string) {
-      this.nickname = nickname;
+    SET_NICKNAME(nickName: string) {
+      this.nickName = nickName;
     },
     /** 存储角色 */
     SET_ROLES(roles: Array<string>) {
@@ -104,8 +104,8 @@ export const useUserStore = defineStore({
                 accessToken: getToken()?.accessToken,
                 expires: getToken()?.expires,
                 avatar: user.avatar,
-                username: user.userName,
-                nickname: user.nickName,
+                userName: user.userName,
+                nickName: user.nickName,
                 roles,
                 permissions
               });
@@ -120,7 +120,7 @@ export const useUserStore = defineStore({
     /** 前端登出（不调用接口） */
     async logOut() {
       await logout();
-      this.username = "";
+      this.userName = "";
       this.roles = [];
       this.permissions = [];
       removeToken();

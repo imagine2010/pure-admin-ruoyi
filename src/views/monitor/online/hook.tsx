@@ -6,7 +6,7 @@ import type { PaginationProps } from "@pureadmin/table";
 
 export function useRole() {
   const form = reactive({
-    username: ""
+    userName: ""
   });
   const dataList = ref([]);
   const loading = ref(true);
@@ -24,7 +24,7 @@ export function useRole() {
     },
     {
       label: "用户名",
-      prop: "username",
+      prop: "userName",
       minWidth: 100
     },
     {
@@ -74,7 +74,7 @@ export function useRole() {
   }
 
   function handleOffline(row) {
-    message(`${row.username}已被强制下线`, { type: "success" });
+    message(`${row.userName}已被强制下线`, { type: "success" });
     onSearch();
   }
 

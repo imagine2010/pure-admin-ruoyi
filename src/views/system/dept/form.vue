@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     parentId: 0,
     name: "",
     principal: "",
-    phone: "",
+    phonenumber: "",
     email: "",
     sort: 0,
     status: 1,
@@ -82,9 +82,9 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="手机号" prop="phone">
+        <el-form-item label="手机号" prop="phonenumber">
           <el-input
-            v-model="newFormInline.phone"
+            v-model="newFormInline.phonenumber"
             clearable
             placeholder="请输入手机号"
           />

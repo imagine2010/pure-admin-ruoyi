@@ -8,7 +8,7 @@ import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
 
 export function useRole(tableRef: Ref) {
   const form = reactive({
-    username: "",
+    userName: "",
     status: "",
     loginTime: ""
   });
@@ -37,7 +37,7 @@ export function useRole(tableRef: Ref) {
     },
     {
       label: "用户名",
-      prop: "username",
+      prop: "userName",
       minWidth: 100
     },
     {

@@ -37,7 +37,7 @@ export function useRole(tableRef: Ref) {
     },
     {
       label: "操作人员",
-      prop: "username",
+      prop: "userName",
       minWidth: 100
     },
     {

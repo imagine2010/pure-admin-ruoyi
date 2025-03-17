@@ -16,7 +16,7 @@ const {
   logout,
   onPanel,
   pureApp,
-  username,
+  userName,
   userAvatar,
   avatarsStyle,
   toggleSideBar
@@ -50,7 +50,7 @@ const {
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover select-none">
           <img :src="userAvatar" :style="avatarsStyle" />
-          <p v-if="username" class="dark:text-white">{{ username }}</p>
+          <p v-if="userName" class="dark:text-white">{{ userName }}</p>
         </span>
         <template #dropdown>
           <el-dropdown-menu class="logout">
