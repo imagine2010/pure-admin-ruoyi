@@ -8,13 +8,20 @@ import {
   storageLocal
 } from "../utils";
 import {
-  type UserResult,
-  type RefreshTokenResult,
+  type LoginResult,
   getLogin,
-  refreshTokenApi
+  type UserResult,
+  getInfo,
+  logout
 } from "@/api/user";
 import { useMultiTagsStoreHook } from "./multiTags";
-import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
+import {
+  type DataInfo,
+  setToken,
+  getToken,
+  removeToken,
+  userKey
+} from "@/utils/auth";
 
 export const useUserStore = defineStore({
   id: "pure-user",
@@ -66,11 +73,44 @@ export const useUserStore = defineStore({
     },
     /** 登入 */
     async loginByUsername(data) {
-      return new Promise<UserResult>((resolve, reject) => {
+      return new Promise<LoginResult>((resolve, reject) => {
         getLogin(data)
-          .then(data => {
-            if (data?.success) setToken(data.data);
-            resolve(data);
+          .then(res => {
+            if (res?.code === 200)
+              setToken({
+                accessToken: res.token,
+                expires: Date.now() + 3600 * 1000
+              });
+            resolve(res);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      });
+    },
+    /** 获取用户信息 */
+    async getInfo() {
+      return new Promise<UserResult>((resolve, reject) => {
+        getInfo()
+          .then(res => {
+            if (res?.code === 200) {
+              const { user, roles, permissions } = res;
+              this.SET_AVATAR(user.avatar);
+              this.SET_USERNAME(user.userName);
+              this.SET_NICKNAME(user.nickName);
+              this.SET_ROLES(roles);
+              this.SET_PERMS(permissions);
+              setToken({
+                accessToken: getToken()?.accessToken,
+                expires: getToken()?.expires,
+                avatar: user.avatar,
+                username: user.userName,
+                nickname: user.nickName,
+                roles,
+                permissions
+              });
+              resolve(res);
+            }
           })
           .catch(error => {
             reject(error);
@@ -78,7 +118,8 @@ export const useUserStore = defineStore({
       });
     },
     /** 前端登出（不调用接口） */
-    logOut() {
+    async logOut() {
+      await logout();
       this.username = "";
       this.roles = [];
       this.permissions = [];
@@ -86,22 +127,22 @@ export const useUserStore = defineStore({
       useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
       resetRouter();
       router.push("/login");
-    },
-    /** 刷新`token` */
-    async handRefreshToken(data) {
-      return new Promise<RefreshTokenResult>((resolve, reject) => {
-        refreshTokenApi(data)
-          .then(data => {
-            if (data) {
-              setToken(data.data);
-              resolve(data);
-            }
-          })
-          .catch(error => {
-            reject(error);
-          });
-      });
     }
+    // /** 刷新`token` */
+    // async handRefreshToken(data) {
+    //   return new Promise<RefreshTokenResult>((resolve, reject) => {
+    //     refreshTokenApi(data)
+    //       .then(data => {
+    //         if (data) {
+    //           setToken(data.data);
+    //           resolve(data);
+    //         }
+    //       })
+    //       .catch(error => {
+    //         reject(error);
+    //       });
+    //   });
+    // }
   }
 });
 

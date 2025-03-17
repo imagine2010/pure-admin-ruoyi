@@ -27,7 +27,8 @@ const IFrame = () => import("@/layout/frame.vue");
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
 // 动态路由
-import { getAsyncRoutes } from "@/api/routes";
+import { getRouters } from "@/api/routes";
+import { useUserStore } from "@/store/modules/user";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
@@ -164,8 +165,12 @@ function handleAsyncRoutes(routeList) {
         ) {
           return;
         } else {
+          // path如果不是以/开头，加上/
+          if (!v.path.startsWith("/")) v.path = "/" + v.path;
+
           // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
           router.options.routes[0].children.push(v);
+
           // 最终路由进行升序
           ascending(router.options.routes[0].children);
           if (!router.hasRoute(v?.name)) router.addRoute(v);
@@ -202,19 +207,27 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
-          handleAsyncRoutes(cloneDeep(data));
-          storageLocal().setItem(key, data);
-          resolve(router);
-        });
+        useUserStore()
+          .getInfo()
+          .then(() => {
+            getRouters().then(({ data }) => {
+              handleAsyncRoutes(cloneDeep(data));
+              storageLocal().setItem(key, data);
+              resolve(router);
+            });
+          });
       });
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({ data }) => {
-        handleAsyncRoutes(cloneDeep(data));
-        resolve(router);
-      });
+      useUserStore()
+        .getInfo()
+        .then(() => {
+          getRouters().then(({ data }) => {
+            handleAsyncRoutes(cloneDeep(data));
+            resolve(router);
+          });
+        });
     });
   }
 }

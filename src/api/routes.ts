@@ -1,10 +1,12 @@
 import { http } from "@/utils/http";
+import { baseUrlApi } from "./utils";
 
-type Result = {
-  success: boolean;
+type RouterResult = {
+  code: number;
+  msg: string;
   data: Array<any>;
 };
-
-export const getAsyncRoutes = () => {
-  return http.request<Result>("get", "/get-async-routes");
+/** 获取路由信息 */
+export const getRouters = () => {
+  return http.request<RouterResult>("get", baseUrlApi("getRouters"));
 };

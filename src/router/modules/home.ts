@@ -13,8 +13,8 @@ export default {
   },
   children: [
     {
-      path: "/welcome",
-      name: "Welcome",
+      path: "/",
+      name: "index",
       component: () => import("@/views/welcome/index.vue"),
       meta: {
         title: "首页",

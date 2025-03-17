@@ -12,7 +12,7 @@ import type {
 import { stringify } from "qs";
 import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
-import { useUserStoreHook } from "@/store/modules/user";
+// import { useUserStoreHook } from "@/store/modules/user";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -83,19 +83,19 @@ class PureHttp {
                 const expired = parseInt(data.expires) - now <= 0;
                 if (expired) {
                   if (!PureHttp.isRefreshing) {
-                    PureHttp.isRefreshing = true;
-                    // token过期刷新
-                    useUserStoreHook()
-                      .handRefreshToken({ refreshToken: data.refreshToken })
-                      .then(res => {
-                        const token = res.data.accessToken;
-                        config.headers["Authorization"] = formatToken(token);
-                        PureHttp.requests.forEach(cb => cb(token));
-                        PureHttp.requests = [];
-                      })
-                      .finally(() => {
-                        PureHttp.isRefreshing = false;
-                      });
+                    // PureHttp.isRefreshing = true;
+                    // // token过期刷新
+                    // useUserStoreHook()
+                    //   .handRefreshToken({ refreshToken: data.refreshToken })
+                    //   .then(res => {
+                    //     const token = res.data.accessToken;
+                    //     config.headers["Authorization"] = formatToken(token);
+                    //     PureHttp.requests.forEach(cb => cb(token));
+                    //     PureHttp.requests = [];
+                    //   })
+                    //   .finally(() => {
+                    //     PureHttp.isRefreshing = false;
+                    //   });
                   }
                   resolve(PureHttp.retryOriginalRequest(config));
                 } else {
