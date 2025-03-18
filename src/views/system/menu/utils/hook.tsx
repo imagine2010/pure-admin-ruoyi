@@ -1,8 +1,8 @@
 import editForm from "../form.vue";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import { getMenuList } from "@/api/system/menu";
-import { transformI18n } from "@/plugins/i18n";
+import { getMenuList, delMenu, addMenu, updateMenu } from "@/api/system/menu";
+// import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps } from "../utils/types";
@@ -11,7 +11,7 @@ import { cloneDeep, isAllEmpty, deviceDetection } from "@pureadmin/utils";
 
 export function useMenu() {
   const form = reactive({
-    title: ""
+    menuName: ""
   });
 
   const formRef = ref();
@@ -20,21 +20,19 @@ export function useMenu() {
 
   const getMenuType = (type, text = false) => {
     switch (type) {
-      case 0:
-        return text ? "菜单" : "primary";
-      case 1:
-        return text ? "iframe" : "warning";
-      case 2:
-        return text ? "外链" : "danger";
-      case 3:
-        return text ? "按钮" : "info";
+      case "M":
+        return text ? "目录" : "primary";
+      case "F":
+        return text ? "功能项" : "danger";
+      case "C":
+        return text ? "菜单" : "info";
     }
   };
 
   const columns: TableColumnList = [
     {
       label: "菜单名称",
-      prop: "title",
+      prop: "menuName",
       align: "left",
       cellRenderer: ({ row }) => (
         <>
@@ -43,7 +41,7 @@ export function useMenu() {
               style: { paddingTop: "1px" }
             })}
           </span>
-          <span>{transformI18n(row.title)}</span>
+          <span>{row.menuName}</span>
         </>
       )
     },
@@ -73,17 +71,23 @@ export function useMenu() {
     },
     {
       label: "权限标识",
-      prop: "auths"
+      prop: "perms"
     },
     {
       label: "排序",
-      prop: "rank",
+      prop: "orderNum",
+      width: 100
+    },
+    {
+      label: "状态",
+      prop: "status",
+      formatter: ({ status }) => (status == "0" ? "正常" : "停用"),
       width: 100
     },
     {
       label: "隐藏",
-      prop: "showLink",
-      formatter: ({ showLink }) => (showLink ? "否" : "是"),
+      prop: "visible",
+      formatter: ({ visible }) => (visible == "0" ? "否" : "是"),
       width: 100
     },
     {
@@ -106,25 +110,21 @@ export function useMenu() {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getMenuList(); // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
+    const { data } = await getMenuList(form);
     let newData = data;
-    if (!isAllEmpty(form.title)) {
-      // 前端搜索菜单名称
-      newData = newData.filter(item =>
-        transformI18n(item.title).includes(form.title)
-      );
-    }
+    newData = newData.map(item => {
+      item.id = item.menuId;
+      return item;
+    });
     dataList.value = handleTree(newData); // 处理成树结构
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
 
   function formatHigherMenuOptions(treeList) {
     if (!treeList || !treeList.length) return;
     const newTreeList = [];
     for (let i = 0; i < treeList.length; i++) {
-      treeList[i].title = transformI18n(treeList[i].title);
+      treeList[i].menuName = treeList[i].menuName;
       formatHigherMenuOptions(treeList[i].children);
       newTreeList.push(treeList[i]);
     }
@@ -139,25 +139,19 @@ export function useMenu() {
           menuType: row?.menuType ?? 0,
           higherMenuOptions: formatHigherMenuOptions(cloneDeep(dataList.value)),
           parentId: row?.parentId ?? 0,
-          title: row?.title ?? "",
-          name: row?.name ?? "",
+          menuName: row?.menuName ?? "",
           path: row?.path ?? "",
           component: row?.component ?? "",
-          rank: row?.rank ?? 99,
-          redirect: row?.redirect ?? "",
+          orderNum: row?.orderNum ?? 99,
           icon: row?.icon ?? "",
-          extraIcon: row?.extraIcon ?? "",
-          enterTransition: row?.enterTransition ?? "",
-          leaveTransition: row?.leaveTransition ?? "",
           activePath: row?.activePath ?? "",
-          auths: row?.auths ?? "",
-          frameSrc: row?.frameSrc ?? "",
-          frameLoading: row?.frameLoading ?? true,
-          keepAlive: row?.keepAlive ?? false,
-          hiddenTag: row?.hiddenTag ?? false,
-          fixedTag: row?.fixedTag ?? false,
-          showLink: row?.showLink ?? true,
-          showParent: row?.showParent ?? false
+          perms: row?.perms ?? "",
+          status: row?.status ?? "0",
+          visible: row?.visible ?? "0",
+          isFrame: row?.isFrame ?? "0",
+          isCache: row?.isCache ?? "0",
+          routeName: row?.routeName ?? "",
+          query: row?.query ?? ""
         }
       },
       width: "45%",
@@ -170,12 +164,9 @@ export function useMenu() {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
         function chores() {
-          message(
-            `您${title}了菜单名称为${transformI18n(curData.title)}的这条数据`,
-            {
-              type: "success"
-            }
-          );
+          message(`您${title}了菜单名称为${curData.menuName}的这条数据`, {
+            type: "success"
+          });
           done(); // 关闭弹框
           onSearch(); // 刷新表格数据
         }
@@ -184,11 +175,25 @@ export function useMenu() {
             console.log("curData", curData);
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              chores();
+              addMenu(curData).then(res => {
+                if (res.code == 200) {
+                  chores();
+                } else {
+                  message(res.msg, {
+                    type: "error"
+                  });
+                }
+              });
             } else {
-              // 实际开发先调用修改接口，再进行下面操作
-              chores();
+              updateMenu(curData).then(res => {
+                if (res.code == 200) {
+                  chores();
+                } else {
+                  message(res.msg, {
+                    type: "error"
+                  });
+                }
+              });
             }
           }
         });
@@ -197,10 +202,18 @@ export function useMenu() {
   }
 
   function handleDelete(row) {
-    message(`您删除了菜单名称为${transformI18n(row.title)}的这条数据`, {
-      type: "success"
+    delMenu(row.menuId).then(res => {
+      if (res.code == 200) {
+        message(`您删除了菜单名称为${row.title}的这条数据`, {
+          type: "success"
+        });
+        onSearch();
+      } else {
+        message(res.msg, {
+          type: "error"
+        });
+      }
     });
-    onSearch();
   }
 
   onMounted(() => {

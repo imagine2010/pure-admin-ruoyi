@@ -42,7 +42,7 @@ const tabsList = [
 
 const pageList = computed(() =>
   copyIconList[currentActiveType.value]
-    .filter(i => i.includes(filterValue.value))
+    ?.filter(i => i.includes(filterValue.value))
     .slice(
       (currentPage.value - 1) * pageSize.value,
       currentPage.value * pageSize.value
@@ -104,7 +104,7 @@ function onClear() {
 watch(
   () => pageList.value,
   () =>
-    (totalPage.value = copyIconList[currentActiveType.value].filter(i =>
+    (totalPage.value = copyIconList[currentActiveType.value]?.filter(i =>
       i.includes(filterValue.value)
     ).length),
   { immediate: true }
@@ -175,7 +175,7 @@ watch(
                   </li>
                 </ul>
                 <el-empty
-                  v-show="pageList.length === 0"
+                  v-show="pageList?.length === 0"
                   :description="`${filterValue} 图标不存在`"
                   :image-size="60"
                 />

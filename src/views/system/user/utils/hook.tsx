@@ -28,7 +28,7 @@ import {
   getAuthRole,
   updateAuthRole
 } from "@/api/system/user";
-import { listRole } from "@/api/system/role";
+import { getRoleList } from "@/api/system/role";
 import {
   ElForm,
   ElInput,
@@ -237,7 +237,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   function handleDelete(row) {
     delUser(row.userId).then(res => {
-      if (res.code == 200) {
+      if (res?.code == 200) {
         message(`您删除了用户编号为${row.userId}的这条数据`, {
           type: "success"
         });
@@ -544,7 +544,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     treeLoading.value = false;
 
     // 角色列表
-    roleOptions.value = (await listRole())?.rows;
+    roleOptions.value = (await getRoleList())?.rows;
   });
 
   return {
