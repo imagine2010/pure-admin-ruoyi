@@ -95,6 +95,16 @@ const {
             <el-option label="已关闭" value="1" />
           </el-select>
         </el-form-item>
+        <el-form-item label="创建时间：" prop="createTime">
+          <el-date-picker
+            v-model="form.daterange"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            class="!w-[280px]"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button
             type="primary"
@@ -119,6 +129,12 @@ const {
           >
             新增用户
           </el-button>
+          <el-button type="primary" :icon="useRenderIcon(AddFill)" disabled>
+            批量导入
+          </el-button>
+          <el-button type="primary" disabled> 删除 </el-button>
+          <el-button type="primary" disabled> 修改 </el-button>
+          <el-button type="primary" disabled> 导出 </el-button>
         </template>
         <template v-slot="{ size, dynamicColumns }">
           <div
@@ -203,7 +219,7 @@ const {
                 />
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item>
+                    <!-- <el-dropdown-item>
                       <el-button
                         :class="buttonClass"
                         link
@@ -214,7 +230,7 @@ const {
                       >
                         上传头像
                       </el-button>
-                    </el-dropdown-item>
+                    </el-dropdown-item> -->
                     <el-dropdown-item>
                       <el-button
                         :class="buttonClass"
@@ -227,7 +243,7 @@ const {
                         重置密码
                       </el-button>
                     </el-dropdown-item>
-                    <el-dropdown-item>
+                    <!-- <el-dropdown-item>
                       <el-button
                         :class="buttonClass"
                         link
@@ -238,7 +254,7 @@ const {
                       >
                         分配角色
                       </el-button>
-                    </el-dropdown-item>
+                    </el-dropdown-item> -->
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>

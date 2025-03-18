@@ -22,6 +22,8 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
     },
     // 服务端渲染
     server: {
+      // 热更新
+      hmr: false,
       // 端口号
       port: VITE_PORT,
       host: "0.0.0.0",

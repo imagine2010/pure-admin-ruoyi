@@ -9,14 +9,15 @@ const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     title: "新增",
     higherDeptOptions: [],
-    parentId: 0,
+    deptId: 0,
     nickName: "",
     userName: "",
     password: "",
     phonenumber: "",
     email: "",
     sex: "",
-    status: 1,
+    roleIds: [],
+    status: 0,
     remark: ""
   })
 });
@@ -31,6 +32,7 @@ const sexOptions = [
     label: "女"
   }
 ];
+const roleOptions = [];
 const ruleFormRef = ref();
 const { switchStyle } = usePublicHooks();
 const newFormInline = ref(props.formInline);
@@ -119,15 +121,32 @@ defineExpose({ getRef });
           </el-select>
         </el-form-item>
       </re-col>
-
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="用户角色">
+          <el-select
+            v-model="newFormInline.roleIds"
+            placeholder="请选择用户角色"
+            class="w-full"
+            clearable
+            multiple
+          >
+            <el-option
+              v-for="(item, index) in roleOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+      </re-col>
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="归属部门">
           <el-cascader
-            v-model="newFormInline.parentId"
+            v-model="newFormInline.deptId"
             class="w-full"
             :options="newFormInline.higherDeptOptions"
             :props="{
-              value: 'deptId',
+              value: 'id',
               label: 'label',
               emitPath: false,
               checkStrictly: true

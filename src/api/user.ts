@@ -13,23 +13,6 @@ export type UserResult = {
   roles: Array<string>;
   user: any;
 };
-// interface Users {
-//   avatar: string;
-//   admin: boolean;
-//   email: string;
-//   password: string;
-//   userName: string;
-//   sex: string;
-//   userId: number;
-//   status: string;
-//   phonenumber: string;
-//   nickName: string;
-//   loginIp: string;
-//   loginDate: string;
-//   deptId: number;
-//   roleId: number;
-//   roleIds: Array<number>;
-// }
 
 /** 登录 */
 export const getLogin = (data?: object) => {

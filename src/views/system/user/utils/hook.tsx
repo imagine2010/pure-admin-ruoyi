@@ -18,16 +18,17 @@ import {
   deviceDetection
 } from "@pureadmin/utils";
 import {
-  // getRoleIds,
   listUser,
   deptTreeSelect,
-  getAuthRole,
   addUser,
   updateUser,
   delUser,
-  updateUserPwd
-  // getAllRoleList
+  resetUserPwd,
+  changeUserStatus,
+  getAuthRole,
+  updateAuthRole
 } from "@/api/system/user";
+import { listRole } from "@/api/system/role";
 import {
   ElForm,
   ElInput,
@@ -53,6 +54,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     userName: "",
     phonenumber: "",
     status: "",
+    daterange: [],
     pageNum: 1,
     pageSize: 10
   });
@@ -145,8 +147,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           size={scope.props.size === "small" ? "small" : "default"}
           loading={switchLoadMap.value[scope.index]?.loading}
           v-model={scope.row.status}
-          active-value={"1"}
-          inactive-value={"0"}
+          active-value={"0"}
+          inactive-value={"1"}
           active-text="已启用"
           inactive-text="已停用"
           inline-prompt
@@ -193,10 +195,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const curScore = ref();
   const roleOptions = ref([]);
 
-  function onChange({ row, index }) {
+  function onChange({ row }) {
     ElMessageBox.confirm(
       `确认要<strong>${
-        row.status === "0" ? "停用" : "启用"
+        row.status === "1" ? "停用" : "启用"
       }</strong><strong style='color:var(--el-color-primary)'>${
         row.userName
       }</strong>用户吗?`,
@@ -210,25 +212,19 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       }
     )
       .then(() => {
-        switchLoadMap.value[index] = Object.assign(
-          {},
-          switchLoadMap.value[index],
-          {
-            loading: true
+        const id = +row.userId;
+        const status = row.status === "0" ? "1" : "0";
+        changeUserStatus(id, status).then(res => {
+          if (res.code == 200) {
+            message(res.msg, {
+              type: "success"
+            });
+          } else {
+            message(res.msg, {
+              type: "error"
+            });
           }
-        );
-        setTimeout(() => {
-          switchLoadMap.value[index] = Object.assign(
-            {},
-            switchLoadMap.value[index],
-            {
-              loading: false
-            }
-          );
-          message("已成功修改用户状态", {
-            type: "success"
-          });
-        }, 300);
+        });
       })
       .catch(() => {
         row.status === "0" ? (row.status = "1") : (row.status = "0");
@@ -293,8 +289,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     const res = await listUser(toRaw(form));
     dataList.value = res.rows;
     pagination.total = res.total;
-    // pagination.pageSize = form.pageSize;
-    // pagination.currentPage = form.pageNum;
     loading.value = false;
   }
 
@@ -312,7 +306,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   // function formatHigherDeptOptions(treeList) {
-  //   // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
+  //   // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示
   //   if (!treeList || !treeList.length) return;
   //   const newTreeList = [];
   //   for (let i = 0; i < treeList.length; i++) {
@@ -331,7 +325,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           title,
           // higherDeptOptions: formatHigherDeptOptions(higherDeptOptions.value),
           higherDeptOptions: higherDeptOptions.value,
-          parentId: row?.dept?.deptId ?? 0,
+          deptId: row?.dept?.deptId ?? 0,
           nickName: row?.nickName ?? "",
           userName: row?.userName ?? "",
           password: row?.password ?? "",
@@ -360,12 +354,14 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         }
         FormRef.validate(valid => {
           if (valid) {
-            console.log("curData", curData);
-            // 表单规则校验通过
             if (title === "新增") {
               addUser(curData).then(res => {
                 if (res.code == 200) {
                   chores();
+                } else {
+                  message(res.msg, {
+                    type: "error"
+                  });
                 }
               });
             } else {
@@ -373,6 +369,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
               updateUser(curData).then(res => {
                 if (res.code == 200) {
                   chores();
+                } else {
+                  message(res.msg, {
+                    type: "error"
+                  });
                 }
               });
             }
@@ -472,18 +472,17 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       beforeSure: done => {
         ruleFormRef.value.validate(valid => {
           if (valid) {
-            console.log(pwdForm.newPwd);
-            updateUserPwd({
-              userId: row.userId,
-              oldPassword: row.password,
-              newPassword: pwdForm.newPwd
-            }).then(res => {
+            resetUserPwd(+row.userId, pwdForm.newPwd).then(res => {
               if (res.code == 200) {
                 message(`已成功重置 ${row.userName} 用户的密码`, {
                   type: "success"
                 });
                 done(); // 关闭弹框
                 onSearch(); // 刷新表格数据
+              } else {
+                message(res.msg, {
+                  type: "error"
+                });
               }
             });
           }
@@ -495,7 +494,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   /** 分配角色 */
   async function handleRole(row) {
     // 选中的角色列表
-    const ids = (await getAuthRole({ userId: row.userId })).data ?? [];
+    const ids = (await getAuthRole(row.userId)).data ?? [];
     addDialog({
       title: `分配 ${row.userName} 用户的角色`,
       props: {
@@ -514,9 +513,21 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       contentRenderer: () => h(roleForm),
       beforeSure: (done, { options }) => {
         const curData = options.props.formInline as RoleFormItemProps;
-        console.log("curIds", curData.ids);
-        // 根据实际业务使用curData.ids和row里的某些字段去调用修改角色接口即可
-        done(); // 关闭弹框
+        updateAuthRole({ userId: row.userId, roleIds: curData.ids }).then(
+          res => {
+            if (res.code == 200) {
+              message(`已成功分配 ${row.userName} 用户的角色`, {
+                type: "success"
+              });
+              done(); // 关闭弹框
+              onSearch(); // 刷新表格数据
+            } else {
+              message(res.msg, {
+                type: "error"
+              });
+            }
+          }
+        );
       }
     });
   }
@@ -533,7 +544,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     treeLoading.value = false;
 
     // 角色列表
-    // roleOptions.value = (await getAllRoleList()).data;
+    roleOptions.value = (await listRole())?.rows;
   });
 
   return {

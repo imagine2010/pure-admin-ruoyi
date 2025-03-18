@@ -27,7 +27,7 @@ export const delUser = (userId: string | number) => {
 };
 
 // 用户密码重置
-export const resetUserPwd = (userId: string | number, password: string) => {
+export const resetUserPwd = (userId: number, password: string) => {
   const data = {
     userId,
     password
@@ -36,7 +36,7 @@ export const resetUserPwd = (userId: string | number, password: string) => {
 };
 
 // 用户状态修改
-export const changeUserStatus = (userId: string | number, status: string) => {
+export const changeUserStatus = (userId: number, status: string) => {
   const data = {
     userId,
     status
@@ -74,7 +74,7 @@ export const uploadAvatar = (data: FormData) => {
 };
 
 // 查询授权角色
-export const getAuthRole = (userId: string | number) => {
+export const getAuthRole = (userId: number) => {
   return http.request("get", baseUrlApi(`system/user/authRole/${userId}`));
 };
 
