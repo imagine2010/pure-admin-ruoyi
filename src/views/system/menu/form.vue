@@ -16,7 +16,7 @@ import {
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    menuType: "C",
+    menuType: "M",
     higherMenuOptions: [],
     parentId: 0,
     menuName: "",
@@ -55,10 +55,15 @@ defineExpose({ getRef });
     <el-row :gutter="30">
       <re-col>
         <el-form-item label="菜单类型">
-          <Segmented
-            v-model="newFormInline.menuType"
-            :options="menuTypeOptions"
-          />
+          <el-radio-group v-model="newFormInline.menuType">
+            <el-radio
+              v-for="option in menuTypeOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </re-col>
 
@@ -110,12 +115,7 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col> -->
 
-      <re-col
-        v-if="newFormInline.menuType !== 'M'"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="路由路径" prop="path">
           <el-input
             v-model="newFormInline.path"
@@ -124,12 +124,7 @@ defineExpose({ getRef });
           />
         </el-form-item>
       </re-col>
-      <re-col
-        v-show="newFormInline.menuType === 'C '"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="组件路径">
           <el-input
             v-model="newFormInline.component"
@@ -140,7 +135,7 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="菜单排序">
+        <el-form-item label="菜单排序" prop="orderNum">
           <el-input-number
             v-model="newFormInline.orderNum"
             class="!w-full"
@@ -151,76 +146,51 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
 
-      <re-col
-        v-show="newFormInline.menuType !== 'M'"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="菜单图标">
           <IconSelect v-model="newFormInline.icon" class="w-full" />
         </el-form-item>
       </re-col>
-      <re-col
-        v-show="newFormInline.menuType == 'C'"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="是否缓存">
-          <Segmented
-            :modelValue="newFormInline.isCache ? 0 : 1"
-            :options="keepAliveOptions"
-            @change="
-              ({ option: { value } }) => {
-                newFormInline.isCache = value;
-              }
-            "
-          />
+          <el-radio-group v-model="newFormInline.isCache">
+            <el-radio
+              v-for="option in keepAliveOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </re-col>
-      <re-col
-        v-show="newFormInline.menuType == 'C'"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="显示状态">
-          <Segmented
-            :modelValue="newFormInline.visible ? 0 : 1"
-            :options="visibleOptions"
-            @change="
-              ({ option: { value } }) => {
-                newFormInline.visible = value;
-              }
-            "
-          />
+          <el-radio-group v-model="newFormInline.visible">
+            <el-radio
+              v-for="option in visibleOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </re-col>
-      <re-col
-        v-show="newFormInline.menuType == 'C'"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="菜单状态">
-          <Segmented
-            :modelValue="newFormInline.status ? 0 : 1"
-            :options="statusOptions"
-            @change="
-              ({ option: { value } }) => {
-                newFormInline.status = value;
-              }
-            "
-          />
+          <el-radio-group v-model="newFormInline.status">
+            <el-radio
+              v-for="option in statusOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
       </re-col>
-      <re-col
-        v-if="newFormInline.menuType === 'M'"
-        :value="12"
-        :xs="24"
-        :sm="24"
-      >
+      <re-col :value="12" :xs="24" :sm="24">
         <!-- 按钮级别权限设置 -->
         <el-form-item label="权限标识" prop="perms">
           <el-input

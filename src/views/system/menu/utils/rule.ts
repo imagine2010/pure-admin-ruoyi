@@ -8,6 +8,6 @@ export const formRules = reactive(<FormRules>{
   orderNum: [{ required: true, message: "显示顺序为必填项", trigger: "blur" }],
   // component: [{ required: true, message: "组件路径为必填项", trigger: "blur" }],
   // name: [{ required: true, message: "路由名称为必填项", trigger: "blur" }],
-  path: [{ required: true, message: "路由路径为必填项", trigger: "blur" }],
-  perms: [{ required: true, message: "权限标识为必填项", trigger: "blur" }]
+  path: [{ required: true, message: "路由路径为必填项", trigger: "blur" }]
+  // perms: [{ required: true, message: "权限标识为必填项", trigger: "blur" }]
 });

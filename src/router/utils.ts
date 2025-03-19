@@ -30,6 +30,12 @@ const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 import { getRouters } from "@/api/routes";
 import { useUserStore } from "@/store/modules/user";
 
+/**
+ * 根据路由信息判断是否需要显示排名
+ *
+ * @param routeInfo 路由信息对象
+ * @returns 如果需要显示排名，则返回 true；否则返回 false
+ */
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
   return isAllEmpty(parentId)
@@ -119,7 +125,13 @@ function getParentPaths(value: string, routes: RouteRecordRaw[], key = "path") {
   return dfs(routes, value, []);
 }
 
-/** 查找对应 `path` 的路由信息 */
+/**
+ * 查找对应 `path` 的路由信息
+ *
+ * @param path 路由路径
+ * @param routes 路由配置数组
+ * @returns 返回找到的路由对象，如果未找到则返回null
+ */
 function findRouteByPath(path: string, routes: RouteRecordRaw[]) {
   let res = routes.find((item: { path: string }) => item.path == path);
   if (res) {
@@ -167,10 +179,8 @@ function handleAsyncRoutes(routeList) {
         } else {
           // path如果不是以/开头，加上/
           if (!v.path.startsWith("/")) v.path = "/" + v.path;
-
           // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
           router.options.routes[0].children.push(v);
-
           // 最终路由进行升序
           ascending(router.options.routes[0].children);
           if (!router.hasRoute(v?.name)) router.addRoute(v);
@@ -276,7 +286,12 @@ function formatTwoStageRoutes(routesList: RouteRecordRaw[]) {
   return newRoutesList;
 }
 
-/** 处理缓存路由（添加、删除、刷新） */
+/**
+ * 处理缓存路由
+ *
+ * @param route 包含路由名称的对象
+ * @param mode 操作模式，可选值为 "add"（添加）、"delete"（删除）、"refresh"（刷新），默认为 "delete"
+ */
 function handleAliveRoute({ name }: ToRouteType, mode?: string) {
   switch (mode) {
     case "add":

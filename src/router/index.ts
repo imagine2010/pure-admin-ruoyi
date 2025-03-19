@@ -84,7 +84,13 @@ export const router: Router = createRouter({
   }
 });
 
-/** 重置路由 */
+/**
+ * 重置路由
+ *
+ * 该函数会遍历当前所有的路由，如果路由名称存在、路由存在并且meta中包含backstage属性，
+ * 则会移除该路由，并重新设置路由配置。
+ * 最后，调用 usePermissionStoreHook().clearAllCachePage() 方法清空所有缓存页面。
+ */
 export function resetRouter() {
   router.getRoutes().forEach(route => {
     const { name, meta } = route;
@@ -100,12 +106,12 @@ export function resetRouter() {
   usePermissionStoreHook().clearAllCachePage();
 }
 
-/** 路由白名单 */
 const whiteList = ["/login"];
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
 router.beforeEach((to: ToRouteType, _from, next) => {
+  // 如果目标路由需要缓存，处理缓存
   if (to.meta?.keepAlive) {
     handleAliveRoute(to, "add");
     // 页面整体刷新和点击标签页刷新
@@ -115,6 +121,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   }
   const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
   NProgress.start();
+  // 如果目标路由不是外部链接，设置页面标题
   const externalLink = isUrl(to?.name as string);
   if (!externalLink) {
     to.matched.some(item => {
@@ -124,19 +131,21 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       else document.title = item.meta.title as string;
     });
   }
-  /** 如果已经登录并存在登录信息后不能跳转到路由白名单，而是继续保持在当前页面 */
+  // 如果已经登录并存在登录信息，不跳转到路由白名单，继续保持在当前页面
   function toCorrectRoute() {
     whiteList.includes(to.fullPath) ? next(_from.fullPath) : next();
   }
+  // 如果存在多标签页缓存且用户已登录
   if (Cookies.get(multipleTabsKey) && userInfo) {
     // 无权限跳转403页面
     if (to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
       next({ path: "/error/403" });
     }
-    // 开启隐藏首页后在浏览器地址栏手动输入首页welcome路由则跳转到404页面
+    // 开启隐藏首页，且用户访问首页路由，路由跳转到404页面
     if (VITE_HIDE_HOME === "true" && to.fullPath === "/welcome") {
       next({ path: "/error/404" });
     }
+    // 一、如果是从其他路由跳转过来（超链接/正常路由）
     if (_from?.name) {
       // name为超链接
       if (externalLink) {
@@ -146,7 +155,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
         toCorrectRoute();
       }
     } else {
-      // 刷新
+      // 二、页面刷新的情况
       if (
         usePermissionStoreHook().wholeMenus.length === 0 &&
         to.path !== "/login"
@@ -186,6 +195,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       toCorrectRoute();
     }
   } else {
+    // 未登录
     if (to.path !== "/login") {
       if (whiteList.indexOf(to.path) !== -1) {
         next();

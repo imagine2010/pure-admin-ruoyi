@@ -2,12 +2,12 @@ import type { OptionsType } from "@/components/ReSegmented";
 
 const menuTypeOptions: Array<OptionsType> = [
   {
-    label: "菜单",
-    value: "C"
+    label: "目录",
+    value: "M"
   },
   {
-    label: "目录  ",
-    value: "M"
+    label: "菜单",
+    value: "C"
   },
   {
     label: "功能项",
@@ -34,8 +34,8 @@ const statusOptions: Array<OptionsType> = [
     value: "0"
   },
   {
-    label: "禁用",
-    tip: "禁用状态",
+    label: "停用",
+    tip: "停用状态",
     value: "1"
   }
 ];
@@ -44,12 +44,12 @@ const keepAliveOptions: Array<OptionsType> = [
   {
     label: "缓存",
     tip: "会保存该页面的整体状态，刷新后会清空状态",
-    value: true
+    value: "0"
   },
   {
     label: "不缓存",
     tip: "不会保存该页面的整体状态",
-    value: false
+    value: "1"
   }
 ];
 

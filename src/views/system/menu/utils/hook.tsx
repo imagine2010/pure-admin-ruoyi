@@ -136,9 +136,10 @@ export function useMenu() {
       title: `${title}菜单`,
       props: {
         formInline: {
-          menuType: row?.menuType ?? 0,
+          menuType: row?.menuType ?? "M",
           higherMenuOptions: formatHigherMenuOptions(cloneDeep(dataList.value)),
           parentId: row?.parentId ?? 0,
+          menuId: row?.menuId ?? 0,
           menuName: row?.menuName ?? "",
           path: row?.path ?? "",
           component: row?.component ?? "",
@@ -163,6 +164,7 @@ export function useMenu() {
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
+
         function chores() {
           message(`您${title}了菜单名称为${curData.menuName}的这条数据`, {
             type: "success"
@@ -172,7 +174,6 @@ export function useMenu() {
         }
         FormRef.validate(valid => {
           if (valid) {
-            console.log("curData", curData);
             // 表单规则校验通过
             if (title === "新增") {
               addMenu(curData).then(res => {
