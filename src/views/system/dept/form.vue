@@ -9,13 +9,15 @@ const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     higherDeptOptions: [],
     parentId: 0,
-    name: "",
-    principal: "",
-    phonenumber: "",
+    deptName: "",
+    orderNum: 0,
+    phone: "",
     email: "",
-    sort: 0,
+    ancestors: "",
     status: 1,
-    remark: ""
+    remark: "",
+    type: "",
+    leader: ""
   })
 });
 
@@ -45,8 +47,8 @@ defineExpose({ getRef });
             class="w-full"
             :options="newFormInline.higherDeptOptions"
             :props="{
-              value: 'id',
-              label: 'name',
+              value: 'deptId',
+              label: 'deptName',
               emitPath: false,
               checkStrictly: true
             }"
@@ -55,7 +57,7 @@ defineExpose({ getRef });
             placeholder="请选择上级部门"
           >
             <template #default="{ node, data }">
-              <span>{{ data.name }}</span>
+              <span>{{ data.deptName }}</span>
               <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
             </template>
           </el-cascader>
@@ -63,9 +65,9 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="部门名称" prop="name">
+        <el-form-item label="部门名称" prop="deptName">
           <el-input
-            v-model="newFormInline.name"
+            v-model="newFormInline.deptName"
             clearable
             placeholder="请输入部门名称"
           />
@@ -74,7 +76,7 @@ defineExpose({ getRef });
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="部门负责人">
           <el-input
-            v-model="newFormInline.principal"
+            v-model="newFormInline.leader"
             clearable
             placeholder="请输入部门负责人"
           />
@@ -82,9 +84,9 @@ defineExpose({ getRef });
       </re-col>
 
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="手机号" prop="phonenumber">
+        <el-form-item label="手机号" prop="phone">
           <el-input
-            v-model="newFormInline.phonenumber"
+            v-model="newFormInline.phone"
             clearable
             placeholder="请输入手机号"
           />
@@ -103,7 +105,7 @@ defineExpose({ getRef });
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="排序">
           <el-input-number
-            v-model="newFormInline.sort"
+            v-model="newFormInline.orderNum"
             class="!w-full"
             :min="0"
             :max="9999"

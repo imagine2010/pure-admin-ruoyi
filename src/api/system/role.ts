@@ -9,7 +9,7 @@ type ResponseType = {
   msg: string;
 };
 // 查询角色列表
-export const getRoleList = (query?: object) => {
+export const listRole = (query?: object) => {
   return http.request<ResponseType>("get", baseUrlApi("system/role/list"), {
     params: query
   });
@@ -21,15 +21,15 @@ export const getRoleMenu = () => {
     baseUrlApi("system/role/getRoleList")
   );
 };
-export const getRoleMenuIds = () => {
-  return http.request<ResponseType>(
-    "get",
-    baseUrlApi("system/role/getRoleList")
-  );
-};
+// export const getRoleMenuIds = () => {
+//   return http.request<ResponseType>(
+//     "get",
+//     baseUrlApi("system/role/getRoleList")
+//   );
+// };
 
 // 查询角色详细
-export const getRole = (roleId: string) => {
+export const getRoleMenuIds = (roleId: string) => {
   return http.request<ResponseType>("get", baseUrlApi(`system/role/${roleId}`));
 };
 
@@ -67,7 +67,7 @@ export const changeRoleStatus = (roleId: string, status: string) => {
 };
 
 // 删除角色
-export const delRole = (roleId: string) => {
+export const delRole = (roleId: number) => {
   return http.request<ResponseType>(
     "delete",
     baseUrlApi(`system/role/${roleId}`)

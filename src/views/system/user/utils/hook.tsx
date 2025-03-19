@@ -28,7 +28,7 @@ import {
   getAuthRole,
   updateAuthRole
 } from "@/api/system/user";
-import { getRoleList } from "@/api/system/role";
+import { listRole } from "@/api/system/role";
 import {
   ElForm,
   ElInput,
@@ -540,7 +540,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     treeLoading.value = false;
 
     // 角色列表
-    roleOptions.value = (await getRoleList())?.rows;
+    roleOptions.value = (await listRole())?.rows;
   });
 
   return {

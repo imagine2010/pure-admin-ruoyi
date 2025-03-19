@@ -8,7 +8,7 @@ type ResponseType = {
   msg: string;
 };
 // 查询部门列表
-export const getDeptList = query => {
+export const listDept = query => {
   return http.request<ResponseType>(
     "get",
     baseUrlApi("system/dept/list"),
