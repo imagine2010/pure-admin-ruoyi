@@ -197,11 +197,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   function onChange({ row }) {
     ElMessageBox.confirm(
-      `确认要<strong>${
-        row.status === "1" ? "停用" : "启用"
-      }</strong><strong style='color:var(--el-color-primary)'>${
-        row.userName
-      }</strong>用户吗?`,
+      `确认要<strong> ${row.status === "1" ? "停用" : "启用"}</strong><strong style='color:var(--el-color-primary)'>${row.userName}</strong>用户吗?`,
       "系统提示",
       {
         confirmButtonText: "确定",
@@ -215,7 +211,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         const id = +row.userId;
         const status = row.status === "0" ? "1" : "0";
         changeUserStatus(id, status).then(res => {
-          if (res.code == 200) {
+          if (res?.code == 200) {
             message(res.msg, {
               type: "success"
             });
