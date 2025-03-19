@@ -38,7 +38,7 @@ export function useDept() {
       minWidth: 100,
       cellRenderer: ({ row, props }) => (
         <el-tag size={props.size} style={tagStyle.value(row.status)}>
-          {row.status === 1 ? "启用" : "停用"}
+          {row.status === "0" ? "启用" : "停用"}
         </el-tag>
       )
     },

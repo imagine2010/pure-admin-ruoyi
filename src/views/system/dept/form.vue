@@ -118,8 +118,8 @@ defineExpose({ getRef });
           <el-switch
             v-model="newFormInline.status"
             inline-prompt
-            :active-value="1"
-            :inactive-value="0"
+            :active-value="0"
+            :inactive-value="1"
             active-text="启用"
             inactive-text="停用"
             :style="switchStyle"

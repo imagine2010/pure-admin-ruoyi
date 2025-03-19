@@ -8,12 +8,10 @@ type ResponseType = {
   msg: string;
 };
 // 查询部门列表
-export const listDept = query => {
-  return http.request<ResponseType>(
-    "get",
-    baseUrlApi("system/dept/list"),
-    query
-  );
+export const listDept = (query: object) => {
+  return http.request<ResponseType>("get", baseUrlApi("system/dept/list"), {
+    params: query
+  });
 };
 
 // 查询部门列表（排除节点）
