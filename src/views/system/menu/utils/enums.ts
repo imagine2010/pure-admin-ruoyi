@@ -29,8 +29,8 @@ const visibleOptions: Array<OptionsType> = [
 ];
 const statusOptions: Array<OptionsType> = [
   {
-    label: "正常",
-    tip: "正常状态",
+    label: "启用",
+    tip: "启用状态",
     value: "0"
   },
   {

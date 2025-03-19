@@ -26,6 +26,7 @@ export function useRole(treeRef: Ref) {
     roleKey: "",
     status: ""
   });
+  const { tagStyle } = usePublicHooks();
   const curRow = ref();
   const formRef = ref();
   const dataList = ref([]);
@@ -35,10 +36,9 @@ export function useRole(treeRef: Ref) {
   const loading = ref(true);
   const isLinkage = ref(false);
   const treeSearchValue = ref();
-  const switchLoadMap = ref({});
   const isExpandAll = ref(false);
   const isSelectAll = ref(false);
-  const { switchStyle } = usePublicHooks();
+
   const treeProps = {
     value: "id",
     label: "label",
@@ -65,19 +65,10 @@ export function useRole(treeRef: Ref) {
     },
     {
       label: "状态",
-      cellRenderer: scope => (
-        <el-switch
-          size={scope.props.size === "small" ? "small" : "default"}
-          loading={switchLoadMap.value[scope.index]?.loading}
-          v-model={scope.row.status}
-          active-value={0}
-          inactive-value={1}
-          active-text="正常"
-          inactive-text="停用"
-          inline-prompt
-          style={switchStyle.value}
-        />
-        // onChange={() => onChange(scope as any)}
+      cellRenderer: ({ row, props }) => (
+        <el-tag size={props.size} style={tagStyle.value(row.status)}>
+          {row.status === "0" ? "启用" : "停用"}
+        </el-tag>
       ),
       minWidth: 90
     },
@@ -109,44 +100,6 @@ export function useRole(treeRef: Ref) {
   //     "dark:hover:!text-primary"
   //   ];
   // });
-
-  // function onChange({ row, index }) {
-  //   ElMessageBox.confirm(
-  //     `确认要<strong>${row.status === "0" ? "停用" : "启用"}</strong><strong style='color:var(--el-color-primary)'>${row.name}</strong>吗?`,
-  //     "系统提示",
-  //     {
-  //       confirmButtonText: "确定",
-  //       cancelButtonText: "取消",
-  //       type: "warning",
-  //       dangerouslyUseHTMLString: true,
-  //       draggable: true
-  //     }
-  //   )
-  //     .then(() => {
-  //       switchLoadMap.value[index] = Object.assign(
-  //         {},
-  //         switchLoadMap.value[index],
-  //         {
-  //           loading: true
-  //         }
-  //       );
-  //       setTimeout(() => {
-  //         switchLoadMap.value[index] = Object.assign(
-  //           {},
-  //           switchLoadMap.value[index],
-  //           {
-  //             loading: false
-  //           }
-  //         );
-  //         message(`已${row.status === 0 ? "停用" : "启用"}${row.name}`, {
-  //           type: "success"
-  //         });
-  //       }, 300);
-  //     })
-  //     .catch(() => {
-  //       row.status === 0 ? (row.status = 1) : (row.status = 0);
-  //     });
-  // }
 
   function handleDelete(row) {
     delRole(row.roleId).then(res => {

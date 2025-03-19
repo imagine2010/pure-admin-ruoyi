@@ -3,6 +3,7 @@ import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
 import { getMenuList, delMenu, addMenu, updateMenu } from "@/api/system/menu";
 // import { transformI18n } from "@/plugins/i18n";
+import { usePublicHooks } from "../../hooks";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps } from "../utils/types";
@@ -13,6 +14,7 @@ export function useMenu() {
   const form = reactive({
     menuName: ""
   });
+  const { tagStyle } = usePublicHooks();
 
   const formRef = ref();
   const dataList = ref([]);
@@ -81,13 +83,17 @@ export function useMenu() {
     {
       label: "状态",
       prop: "status",
-      formatter: ({ status }) => (status == "0" ? "正常" : "停用"),
+      cellRenderer: ({ row, props }) => (
+        <el-tag size={props.size} style={tagStyle.value(row.status)}>
+          {row.status === "0" ? "启用" : "停用"}
+        </el-tag>
+      ),
       width: 100
     },
     {
       label: "隐藏",
       prop: "visible",
-      formatter: ({ visible }) => (visible == "0" ? "否" : "是"),
+      formatter: ({ visible }) => (visible == "0" ? "显示" : "隐藏"),
       width: 100
     },
     {

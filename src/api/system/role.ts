@@ -58,14 +58,6 @@ export const dataScope = (data: object) => {
   );
 };
 
-// 角色状态修改
-export const changeRoleStatus = (roleId: string, status: string) => {
-  return http.request<ResponseType>(
-    "put",
-    baseUrlApi(`system/role/changeStatus/${roleId}/${status}`)
-  );
-};
-
 // 删除角色
 export const delRole = (roleId: number) => {
   return http.request<ResponseType>(
