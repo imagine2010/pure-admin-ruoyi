@@ -11,6 +11,7 @@ import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
+import { addDateRange } from "@/utils/date";
 import {
   getKeyList,
   isAllEmpty,
@@ -54,9 +55,9 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     userName: "",
     phonenumber: "",
     status: "",
-    daterange: [],
     pageNum: 1,
-    pageSize: 10
+    pageSize: 10,
+    daterange: [] as any[]
   });
   const formRef = ref();
   const ruleFormRef = ref();
@@ -282,9 +283,11 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   async function onSearch() {
     loading.value = true;
-    const res = await listUser(toRaw(form));
+    const res = await listUser(addDateRange(toRaw(form), form.daterange));
     dataList.value = res.rows;
     pagination.total = res.total;
+    pagination.currentPage = form.pageNum;
+    pagination.pageSize = form.pageSize;
     loading.value = false;
   }
 

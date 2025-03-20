@@ -95,10 +95,11 @@ const {
             <el-option label="已关闭" value="1" />
           </el-select>
         </el-form-item>
-        <el-form-item label="创建时间：" prop="createTime">
+        <el-form-item label="创建时间：" prop="daterange">
           <el-date-picker
             v-model="form.daterange"
             type="daterange"
+            value-format="YYYY-MM-DD"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
