@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
-import { getOnlineLogsList } from "@/api/system";
+import { getOnlineLogsList } from "@/api/monitor/online.js";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
 
@@ -80,15 +80,13 @@ export function useRole() {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getOnlineLogsList(toRaw(form));
-    dataList.value = data.list;
-    pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
+    const { rows, total } = await getOnlineLogsList(toRaw(form));
+    dataList.value = rows;
+    pagination.total = total;
+    // pagination.pageSize = data.pageSize;
+    // pagination.currentPage = data.currentPage;
 
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
 
   const resetForm = formEl => {

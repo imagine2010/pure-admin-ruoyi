@@ -282,6 +282,7 @@ function formatTwoStageRoutes(routesList: RouteRecordRaw[]) {
     } else {
       newRoutesList[0]?.children.push({ ...v });
     }
+    console.log(newRoutesList, "newRoutesList");
   });
   return newRoutesList;
 }

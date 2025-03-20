@@ -232,13 +232,9 @@ export function useMenu() {
     loading,
     columns,
     dataList,
-    /** 搜索 */
     onSearch,
-    /** 重置 */
     resetForm,
-    /** 新增、修改菜单 */
     openDialog,
-    /** 删除菜单 */
     handleDelete,
     handleSelectionChange
   };

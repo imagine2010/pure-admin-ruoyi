@@ -149,8 +149,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           v-model={scope.row.status}
           active-value={"0"}
           inactive-value={"1"}
-          active-text="已启用"
-          inactive-text="已停用"
+          active-text="启用"
+          inactive-text="停用"
           inline-prompt
           style={switchStyle.value}
           onChange={() => onChange(scope as any)}

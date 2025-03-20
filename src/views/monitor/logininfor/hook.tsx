@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { getKeyList } from "@pureadmin/utils";
-import { getLoginLogsList } from "@/api/system";
+import { getLoginLogsList } from "@/api/monitor/logininfor.js";
 import { usePublicHooks } from "@/views/system/hooks";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
@@ -129,15 +129,13 @@ export function useRole(tableRef: Ref) {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getLoginLogsList(toRaw(form));
-    dataList.value = data.list;
-    pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
+    const { rows, total } = await getLoginLogsList(toRaw(form));
+    dataList.value = rows;
+    pagination.total = total;
+    // pagination.pageSize = data.pageSize;
+    // pagination.currentPage = data.currentPage;
 
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
 
   const resetForm = formEl => {

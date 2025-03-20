@@ -68,6 +68,7 @@ export const remainingPaths = Object.keys(remainingRouter).map(v => {
 export const router: Router = createRouter({
   history: getHistoryMode(import.meta.env.VITE_ROUTER_HISTORY),
   routes: constantRoutes.concat(...(remainingRouter as any)),
+
   strict: true,
   scrollBehavior(to, from, savedPosition) {
     return new Promise(resolve => {
@@ -83,7 +84,6 @@ export const router: Router = createRouter({
     });
   }
 });
-
 /**
  * 重置路由
  *
@@ -112,6 +112,8 @@ const { VITE_HIDE_HOME } = import.meta.env;
 
 router.beforeEach((to: ToRouteType, _from, next) => {
   // 如果目标路由需要缓存，处理缓存
+  console.log(to, _from);
+
   if (to.meta?.keepAlive) {
     handleAliveRoute(to, "add");
     // 页面整体刷新和点击标签页刷新
