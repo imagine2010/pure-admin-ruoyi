@@ -25,6 +25,7 @@
 
 <script setup>
 import { createTable } from "@/api/tool/gen";
+import { getCurrentInstance, ref } from "vue";
 
 const visible = ref(false);
 const content = ref("");

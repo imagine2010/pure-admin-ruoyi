@@ -112,8 +112,6 @@ const { VITE_HIDE_HOME } = import.meta.env;
 
 router.beforeEach((to: ToRouteType, _from, next) => {
   // 如果目标路由需要缓存，处理缓存
-  console.log(to, _from);
-
   if (to.meta?.keepAlive) {
     handleAliveRoute(to, "add");
     // 页面整体刷新和点击标签页刷新
@@ -123,7 +121,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   }
   const userInfo = storageLocal().getItem<DataInfo<number>>(userKey);
   NProgress.start();
-  // 如果目标路由不是外部链接，设置页面标题
+  // 非外部链接，设置页面标题
   const externalLink = isUrl(to?.name as string);
   if (!externalLink) {
     to.matched.some(item => {
@@ -133,8 +131,8 @@ router.beforeEach((to: ToRouteType, _from, next) => {
       else document.title = item.meta.title as string;
     });
   }
-  // 如果已经登录并存在登录信息，不跳转到路由白名单，继续保持在当前页面
   function toCorrectRoute() {
+    // 已登录且存在登录信息，不跳转到路由白名单，继续保持在当前页面
     whiteList.includes(to.fullPath) ? next(_from.fullPath) : next();
   }
   // 如果存在多标签页缓存且用户已登录

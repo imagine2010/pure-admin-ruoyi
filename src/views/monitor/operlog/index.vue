@@ -41,13 +41,40 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="所属模块" prop="module">
+      <el-form-item label="操作地址" prop="operIp">
         <el-input
-          v-model="form.module"
-          placeholder="请输入所属模块"
+          v-model="form.operIp"
+          placeholder="请输入操作地址"
           clearable
           class="!w-[170px]"
         />
+      </el-form-item>
+      <el-form-item label="系统模块" prop="title">
+        <el-input
+          v-model="form.title"
+          placeholder="请输入系统模块"
+          clearable
+          class="!w-[170px]"
+        />
+      </el-form-item>
+      <el-form-item label="操作人员" prop="operName">
+        <el-input
+          v-model="form.operName"
+          placeholder="请输入操作人员"
+          clearable
+          class="!w-[170px]"
+        />
+      </el-form-item>
+      <el-form-item label="类型" prop="businessType">
+        <el-select
+          v-model="form.businessType"
+          placeholder="操作类型"
+          clearable
+          class="!w-[170px]"
+        >
+          <el-option label="成功" value="1" />
+          <el-option label="失败" value="0" />
+        </el-select>
       </el-form-item>
       <el-form-item label="操作状态" prop="status">
         <el-select
@@ -60,14 +87,18 @@ const {
           <el-option label="失败" value="0" />
         </el-select>
       </el-form-item>
-      <el-form-item label="操作时间" prop="operatingTime">
+      <el-form-item label="操作时间" prop="dateRange">
         <el-date-picker
-          v-model="form.operatingTime"
-          :shortcuts="getPickerShortcuts()"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="开始日期时间"
-          end-placeholder="结束日期时间"
+          v-model="dateRange"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :default-time="[
+            new Date(2000, 1, 1, 0, 0, 0),
+            new Date(2000, 1, 1, 23, 59, 59)
+          ]"
         />
       </el-form-item>
       <el-form-item>
@@ -146,10 +177,6 @@ const {
 <style lang="scss" scoped>
 :deep(.el-dropdown-menu__item i) {
   margin: 0;
-}
-
-.main-content {
-  margin: 24px 24px 0 !important;
 }
 
 .search-form {

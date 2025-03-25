@@ -8,7 +8,7 @@ import Plane from "@iconify-icons/ri/plane-line";
 import Refresh from "@iconify-icons/ep/refresh";
 
 defineOptions({
-  name: "OnlineUser"
+  name: "Online"
 });
 
 const formRef = ref();
@@ -35,10 +35,18 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="用户名" prop="userName">
+      <el-form-item label="登录名称" prop="userName">
         <el-input
           v-model="form.userName"
-          placeholder="请输入用户名"
+          placeholder="请输入登录名称"
+          clearable
+          class="!w-[180px]"
+        />
+      </el-form-item>
+      <el-form-item label="登录地址" prop="ipaddr">
+        <el-input
+          v-model="form.ipaddr"
+          placeholder="请输入登录地址"
           clearable
           class="!w-[180px]"
         />
@@ -106,10 +114,6 @@ const {
 <style lang="scss" scoped>
 :deep(.el-dropdown-menu__item i) {
   margin: 0;
-}
-
-.main-content {
-  margin: 24px 24px 0 !important;
 }
 
 .search-form {

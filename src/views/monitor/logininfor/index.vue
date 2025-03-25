@@ -41,10 +41,10 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="用户名" prop="userName">
+      <el-form-item label="用户名称" prop="userName">
         <el-input
           v-model="form.userName"
-          placeholder="请输入用户名"
+          placeholder="请输入用户名称"
           clearable
           class="!w-[150px]"
         />
@@ -60,14 +60,18 @@ const {
           <el-option label="失败" value="0" />
         </el-select>
       </el-form-item>
-      <el-form-item label="登录时间" prop="loginTime">
+      <el-form-item label="登录时间" prop="dateRange">
         <el-date-picker
-          v-model="form.loginTime"
-          :shortcuts="getPickerShortcuts()"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="开始日期时间"
-          end-placeholder="结束日期时间"
+          v-model="dateRange"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :default-time="[
+            new Date(2000, 1, 1, 0, 0, 0),
+            new Date(2000, 1, 1, 23, 59, 59)
+          ]"
         />
       </el-form-item>
       <el-form-item>
@@ -87,6 +91,15 @@ const {
 
     <PureTableBar title="登录日志" :columns="columns" @refresh="onSearch">
       <template #buttons>
+        <el-button type="primary" :icon="useRenderIcon('ri:download-line')"
+          >删除</el-button
+        >
+        <el-button type="primary" :icon="useRenderIcon('ri:download-line')"
+          >解锁</el-button
+        >
+        <el-button type="primary" :icon="useRenderIcon('ri:download-line')"
+          >导出</el-button
+        >
         <el-popconfirm title="确定要删除所有日志数据吗？" @confirm="clearAll">
           <template #reference>
             <el-button type="danger" :icon="useRenderIcon(Delete)">
@@ -146,10 +159,6 @@ const {
 <style lang="scss" scoped>
 :deep(.el-dropdown-menu__item i) {
   margin: 0;
-}
-
-.main-content {
-  margin: 24px 24px 0 !important;
 }
 
 .search-form {

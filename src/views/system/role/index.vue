@@ -125,6 +125,17 @@ const {
           <el-option label="停用" value="1" />
         </el-select>
       </el-form-item>
+      <el-form-item label="创建时间：" prop="daterange">
+        <el-date-picker
+          v-model="form.daterange"
+          type="daterange"
+          value-format="YYYY-MM-DD"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          class="!w-[280px]"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
@@ -276,10 +287,6 @@ const {
 <style lang="scss" scoped>
 :deep(.el-dropdown-menu__item i) {
   margin: 0;
-}
-
-.main-content {
-  margin: 24px 24px 0 !important;
 }
 
 .search-form {

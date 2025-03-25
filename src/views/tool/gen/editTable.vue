@@ -2,7 +2,7 @@
   <el-card>
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="basic">
-        <basic-info-form ref="basicInfo" :info="info" />
+        <basic-info-form ref="basicInfo" v-model:info="info" />
       </el-tab-pane>
       <el-tab-pane label="字段信息" name="columnInfo">
         <el-table
@@ -147,7 +147,7 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
-        <gen-info-form ref="genInfo" :info="info" :tables="tables" />
+        <gen-info-form ref="genInfo" v-model:info="info" :tables="tables" />
       </el-tab-pane>
     </el-tabs>
     <el-form label-width="100px">
@@ -162,8 +162,9 @@
 <script setup name="GenEdit">
 import { getGenTable, updateGenTable } from "@/api/tool/gen";
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type";
-import basicInfoForm from "./basicInfoForm";
-import genInfoForm from "./genInfoForm";
+import basicInfoForm from "./basicInfoForm.vue";
+import genInfoForm from "./genInfoForm.vue";
+import { ref, getCurrentInstance, useRoute } from "vue";
 
 const route = useRoute();
 const { proxy } = getCurrentInstance();

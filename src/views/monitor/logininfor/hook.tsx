@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { getKeyList } from "@pureadmin/utils";
-import { getLoginLogsList } from "@/api/monitor/logininfor.js";
+import { getLoginLogsList } from "@/api/monitor/logininfor";
 import { usePublicHooks } from "@/views/system/hooks";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
@@ -10,7 +10,7 @@ export function useRole(tableRef: Ref) {
   const form = reactive({
     userName: "",
     status: "",
-    loginTime: ""
+    dateRange: [] as any[]
   });
   const dataList = ref([]);
   const loading = ref(true);
@@ -32,27 +32,27 @@ export function useRole(tableRef: Ref) {
     },
     {
       label: "序号",
-      prop: "id",
+      prop: "infoId",
       minWidth: 90
     },
     {
-      label: "用户名",
+      label: "用户名称",
       prop: "userName",
       minWidth: 100
     },
     {
-      label: "登录 IP",
-      prop: "ip",
+      label: "地址",
+      prop: "ipaddr",
       minWidth: 140
     },
     {
       label: "登录地点",
-      prop: "address",
+      prop: "loginLocation",
       minWidth: 140
     },
     {
       label: "操作系统",
-      prop: "system",
+      prop: "os",
       minWidth: 100
     },
     {
@@ -71,12 +71,12 @@ export function useRole(tableRef: Ref) {
       )
     },
     {
-      label: "登录行为",
-      prop: "behavior",
+      label: "描述",
+      prop: "msg",
       minWidth: 100
     },
     {
-      label: "登录时间",
+      label: "访问时间",
       prop: "loginTime",
       minWidth: 180,
       formatter: ({ loginTime }) =>

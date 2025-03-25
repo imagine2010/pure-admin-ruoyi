@@ -1,9 +1,23 @@
 import { http } from "@/utils/http";
 import { baseUrlApi } from "@/api/utils";
 
+type Logininfor = {
+  infoId: number;
+  userName: string;
+  ipaddr: string;
+  status: string;
+  msg: string;
+  loginTime: string;
+};
+type LoginLogs = {
+  total: number;
+  rows: Logininfor[];
+  msg: string;
+  code: number;
+};
 // 查询登录日志列表
 export const getLoginLogsList = query => {
-  return http.request("get", baseUrlApi("monitor/logininfor/list"), {
+  return http.request<LoginLogs>("get", baseUrlApi("monitor/logininfor/list"), {
     params: query
   });
 };
@@ -22,9 +36,6 @@ export const unlockLogininfor = userName => {
 };
 
 // 清空登录日志
-export function cleanLogininfor() {
-  return http.request({
-    url: baseUrlApi + "/monitor/logininfor/clean",
-    method: "delete"
-  });
-}
+export const cleanLogininfor = () => {
+  return http.request("delete", baseUrlApi(`monitor/logininfor/clean`));
+};

@@ -1,16 +1,19 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { getKeyList } from "@pureadmin/utils";
-import { getOperationLogsList } from "@/api/monitor/operlog.js";
+import { getOperationLogsList } from "@/api/monitor/operlog";
 import { usePublicHooks } from "@/views/system/hooks";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
 
 export function useRole(tableRef: Ref) {
   const form = reactive({
-    module: "",
+    operIp: "",
+    title: "",
+    operName: "",
+    businessType: "",
     status: "",
-    operatingTime: ""
+    dateRange: [] as any[]
   });
   const dataList = ref([]);
   const loading = ref(true);
@@ -31,43 +34,28 @@ export function useRole(tableRef: Ref) {
       reserveSelection: true // 数据刷新后保留选项
     },
     {
-      label: "序号",
-      prop: "id",
+      label: "日志编号",
+      prop: "operId",
       minWidth: 90
     },
     {
+      label: "系统模块",
+      prop: "title",
+      minWidth: 100
+    },
+    {
+      label: "操作类型",
+      prop: "businessType",
+      minWidth: 80
+    },
+    {
       label: "操作人员",
-      prop: "userName",
-      minWidth: 100
-    },
-    {
-      label: "所属模块",
-      prop: "module",
+      prop: "operName",
       minWidth: 140
     },
     {
-      label: "操作概要",
-      prop: "summary",
-      minWidth: 140
-    },
-    {
-      label: "操作 IP",
-      prop: "ip",
-      minWidth: 100
-    },
-    {
-      label: "操作地点",
-      prop: "address",
-      minWidth: 140
-    },
-    {
-      label: "操作系统",
-      prop: "system",
-      minWidth: 100
-    },
-    {
-      label: "浏览器类型",
-      prop: "browser",
+      label: "操作地址",
+      prop: "operIp",
       minWidth: 100
     },
     {
@@ -81,11 +69,17 @@ export function useRole(tableRef: Ref) {
       )
     },
     {
-      label: "操作时间",
-      prop: "operatingTime",
+      label: "操作日期",
+      prop: "operTime",
       minWidth: 180,
       formatter: ({ operatingTime }) =>
         dayjs(operatingTime).format("YYYY-MM-DD HH:mm:ss")
+    },
+    {
+      label: "消耗时间",
+      prop: "costTime",
+      minWidth: 100,
+      formatter: ({ costTime }) => `${costTime}ms`
     }
   ];
 

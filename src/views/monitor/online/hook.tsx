@@ -1,12 +1,13 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
-import { getOnlineLogsList } from "@/api/monitor/online.js";
+import { getOnlineLogsList, forceLogout } from "@/api/monitor/online";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
 
 export function useRole() {
   const form = reactive({
-    userName: ""
+    userName: "",
+    ipaddr: ""
   });
   const dataList = ref([]);
   const loading = ref(true);
@@ -19,27 +20,37 @@ export function useRole() {
   const columns: TableColumnList = [
     {
       label: "序号",
-      prop: "id",
+      type: "index",
       minWidth: 60
     },
     {
-      label: "用户名",
+      label: "会话编号",
+      prop: "tokenId",
+      minWidth: 60
+    },
+    {
+      label: "登录名称",
       prop: "userName",
       minWidth: 100
     },
     {
-      label: "登录 IP",
-      prop: "ip",
+      label: "所属部门",
+      prop: "deptName",
+      minWidth: 100
+    },
+    {
+      label: "主机",
+      prop: "ipaddr",
       minWidth: 140
     },
     {
       label: "登录地点",
-      prop: "address",
+      prop: "loginLocation",
       minWidth: 140
     },
     {
       label: "操作系统",
-      prop: "system",
+      prop: "os",
       minWidth: 100
     },
     {
@@ -74,8 +85,14 @@ export function useRole() {
   }
 
   function handleOffline(row) {
-    message(`${row.userName}已被强制下线`, { type: "success" });
-    onSearch();
+    forceLogout(row.tokenId).then(res => {
+      if (res.code == 200) {
+        message(`${row.userName}已被强制下线`, { type: "success" });
+        onSearch();
+      } else {
+        message(res.msg, { type: "error" });
+      }
+    });
   }
 
   async function onSearch() {

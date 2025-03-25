@@ -74,6 +74,8 @@
 
 <script setup>
 import { listDbTable, importTable } from "@/api/tool/gen";
+import { ref, reactive, getCurrentInstance } from "vue";
+
 const total = ref(0);
 const visible = ref(false);
 const tables = ref([]);

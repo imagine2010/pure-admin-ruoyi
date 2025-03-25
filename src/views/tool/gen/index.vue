@@ -1,5 +1,5 @@
 <template>
-  <div class="app-main">
+  <div class="app-container">
     <el-form
       v-show="showSearch"
       ref="queryRef"
@@ -96,7 +96,7 @@
           >删除</el-button
         >
       </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
+      <!-- <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" /> -->
     </el-row>
 
     <el-table
@@ -255,9 +255,9 @@ import {
 import router from "@/router";
 import importTable from "./importTable.vue";
 import createTable from "./createTable.vue";
+import { getCurrentInstance, reactive, ref, toRefs, onActivated } from "vue";
 import { useRoute } from "vue-router";
-import { ref, reactive, toRefs } from "vue";
-
+import { addDateRange } from "@/utils/date";
 const route = useRoute();
 const { proxy } = getCurrentInstance();
 
@@ -306,13 +306,11 @@ onActivated(() => {
 /** 查询表集合 */
 function getList() {
   loading.value = true;
-  listTable(proxy.addDateRange(queryParams.value, dateRange.value)).then(
-    response => {
-      tableList.value = response.rows;
-      total.value = response.total;
-      loading.value = false;
-    }
-  );
+  listTable(addDateRange(queryParams.value, dateRange.value)).then(response => {
+    tableList.value = response.rows;
+    total.value = response.total;
+    loading.value = false;
+  });
 }
 
 /** 搜索按钮操作 */
@@ -325,18 +323,18 @@ function handleQuery() {
 function handleGenTable(row) {
   const tbNames = row.tableName || tableNames.value;
   if (tbNames == "") {
-    proxy.$modal.msgError("请选择要生成的数据");
+    // proxy.$modal.msgError("请选择要生成的数据");
     return;
   }
   if (row.genType === "1") {
     genCode(row.tableName).then(response => {
-      proxy.$modal.msgSuccess("成功生成到自定义路径：" + row.genPath);
+      // proxy.$modal.msgSuccess("成功生成到自定义路径：" + row.genPath);
     });
   } else {
-    proxy.$download.zip(
-      "/tool/gen/batchGenCode?tables=" + tbNames,
-      "ruoyi.zip"
-    );
+    // proxy.$download.zip(
+    //   "/tool/gen/batchGenCode?tables=" + tbNames,
+    //   "ruoyi.zip"
+    // );
   }
 }
 
@@ -349,7 +347,7 @@ function handleSynchDb(row) {
       return synchDb(tableName);
     })
     .then(() => {
-      proxy.$modal.msgSuccess("同步成功");
+      // proxy.$modal.msgSuccess("同步成功");
     })
     .catch(() => {});
 }

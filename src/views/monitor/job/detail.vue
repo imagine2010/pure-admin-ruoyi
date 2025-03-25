@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { ref } from "vue";
-import "vue-json-pretty/lib/styles.css";
-import VueJsonPretty from "vue-json-pretty";
+// import "vue-json-pretty/lib/styles.css";
+// import VueJsonPretty from "vue-json-pretty";
 
 const props = defineProps({
   data: {

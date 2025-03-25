@@ -1,9 +1,15 @@
 import { http } from "@/utils/http";
 import { baseUrlApi } from "@/api/utils";
-
+type ResponseType = {
+  code: number;
+  rows?: Array<any>;
+  total?: number;
+  data?: any;
+  msg: string;
+};
 // 查询操作日志列表
 export const getOperationLogsList = query => {
-  return http.request("get", baseUrlApi("monitor/operlog/list"), {
+  return http.request<ResponseType>("get", baseUrlApi("monitor/operlog/list"), {
     params: query
   });
 };
