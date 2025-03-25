@@ -1,6 +1,27 @@
 <h1>vue-pure-admin+ruoyi框架后台</h1>
 ruoyi后台版本：3.8.9
 
+<h3>保留功能</h3>
+
+#### 登录
+
+#### 首页
+
+#### 系统管理
+
+用户管理
+角色管理
+菜单管理
+部门管理
+岗位管理
+字典类型
+日志管理（操作日志、登录日志）
+
+#### 系统监控
+
+在线用户
+定时任务
+
 [![license](https://img.shields.io/github/license/pure-admin/vue-pure-admin.svg)](LICENSE)
 
 **中文** | [English](./README.en-US.md)
