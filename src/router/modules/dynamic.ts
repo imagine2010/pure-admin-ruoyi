@@ -17,12 +17,17 @@ export default [
     path: "/system/user-auth",
     // name: "userAuth",
     component: Layout,
+    meta: {
+      showLink: false,
+      title: "分配角色",
+      rank: 100
+    },
     // permissions: ["system:user:edit"],
     children: [
       {
         path: "/system/user-auth/:id(\\d+)",
         name: "AuthRole",
-        component: () => import("@/views/system/user/authRole.vue"),
+        component: () => import("@/views/system/user/form/authRole.vue"),
         meta: {
           showLink: false,
           title: "分配角色",
@@ -36,6 +41,11 @@ export default [
     path: "/system/role-auth",
     // name: "userAuth",
     component: Layout,
+    meta: {
+      showLink: false,
+      title: "分配用户",
+      rank: 101
+    },
     // permissions: ["system:role:edit"],
     children: [
       {
@@ -55,6 +65,11 @@ export default [
     path: "/monitor/job-log",
     // name: "userAuth",
     component: Layout,
+    meta: {
+      showLink: false,
+      title: "调度日志",
+      rank: 102
+    },
     // permissions: ['monitor:job:list'],
     children: [
       {

@@ -7,7 +7,13 @@ type ResponseType = {
   rows?: Array<any>;
   total?: number;
 };
-
+type getUserResponse = {
+  code: number;
+  data: object;
+  msg: string;
+  roles: Array<object>;
+  roleIds: Array<number>;
+};
 // 查询用户列表
 export const listUser = (query: object) => {
   return http.request<ResponseType>("get", baseUrlApi("system/user/list"), {
@@ -16,10 +22,12 @@ export const listUser = (query: object) => {
 };
 
 // 查询用户详细
-export const getUser = (userId: string | number) => {
-  return http.request<ResponseType>("get", baseUrlApi(`system/user/${userId}`));
+export const getUser = (userId?: string | number) => {
+  const url = userId
+    ? baseUrlApi(`system/user/${userId}`)
+    : baseUrlApi("system/user/");
+  return http.request<getUserResponse>("get", url);
 };
-
 // 新增用户
 export const addUser = (data?: object) => {
   return http.request<ResponseType>("post", baseUrlApi("system/user"), {
@@ -121,4 +129,19 @@ export const updateAuthRole = (data?: object) => {
 // 查询部门下拉树结构
 export const deptTreeSelect = () => {
   return http.request<ResponseType>("get", baseUrlApi("system/user/deptTree"));
+};
+
+// 导出用户列表
+export const exportUser = (query?: object) => {
+  return http.request("post", baseUrlApi("system/user/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};
+
+// 下载模板
+export const importTemplate = () => {
+  return http.request("post", baseUrlApi("system/user/importTemplate"), {
+    responseType: "blob"
+  });
 };

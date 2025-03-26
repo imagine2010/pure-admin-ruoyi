@@ -8,8 +8,9 @@ import { usePublicHooks } from "../../hooks";
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     title: "新增",
-    higherDeptOptions: [],
     deptId: 0,
+    higherDeptOptions: [],
+    roleOptions: [],
     nickName: "",
     userName: "",
     password: "",
@@ -32,7 +33,7 @@ const sexOptions = [
     label: "女"
   }
 ];
-const roleOptions = [];
+
 const ruleFormRef = ref();
 const { switchStyle } = usePublicHooks();
 const newFormInline = ref(props.formInline);
@@ -129,12 +130,13 @@ defineExpose({ getRef });
             class="w-full"
             clearable
             multiple
+            placement="bottom-start"
           >
             <el-option
-              v-for="(item, index) in roleOptions"
-              :key="index"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in newFormInline.roleOptions"
+              :key="item.roleId as number"
+              :label="item.roleName as string"
+              :value="item.roleId as number"
             />
           </el-select>
         </el-form-item>

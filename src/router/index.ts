@@ -28,7 +28,8 @@ import {
   type DataInfo,
   userKey,
   removeToken,
-  multipleTabsKey
+  multipleTabsKey,
+  TokenKey
 } from "@/utils/auth";
 
 /** 自动导入全部静态路由，无需再手动引入！匹配 src/router/modules 目录（任何嵌套级别）中具有 .ts 扩展名的所有文件，除了 remaining.ts 文件
@@ -133,10 +134,14 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   }
   function toCorrectRoute() {
     // 已登录且存在登录信息，不跳转到路由白名单，继续保持在当前页面
-    whiteList.includes(to.fullPath) ? next(_from.fullPath) : next();
+    if (whiteList.includes(to.fullPath)) {
+      next(_from.fullPath);
+    } else {
+      next();
+    }
   }
   // 如果存在多标签页缓存且用户已登录
-  if (Cookies.get(multipleTabsKey) && userInfo) {
+  if (Cookies.get(multipleTabsKey) && userInfo && Cookies.get(TokenKey)) {
     // 无权限跳转403页面
     if (to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
       next({ path: "/error/403" });

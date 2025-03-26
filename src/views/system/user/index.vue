@@ -35,10 +35,10 @@ const {
   deviceDetection,
   onSearch,
   resetForm,
-  onbatchDel,
+  handleExport,
+  handleImport,
   openDialog,
   onTreeSelect,
-  handleUpdate,
   handleDelete,
   handleUpload,
   handleReset,
@@ -130,12 +130,14 @@ const {
           >
             新增用户
           </el-button>
-          <el-button type="primary" :icon="useRenderIcon(AddFill)" disabled>
-            批量导入
+          <el-button
+            type="primary"
+            :icon="useRenderIcon(AddFill)"
+            @click="handleImport"
+          >
+            导入
           </el-button>
-          <el-button type="primary" disabled> 删除 </el-button>
-          <el-button type="primary" disabled> 修改 </el-button>
-          <el-button type="primary" disabled> 导出 </el-button>
+          <el-button type="primary" @click="handleExport"> 导出 </el-button>
         </template>
         <template v-slot="{ size, dynamicColumns }">
           <div
@@ -154,7 +156,7 @@ const {
                 取消选择
               </el-button>
             </div>
-            <el-popconfirm title="是否确认删除?" @confirm="onbatchDel">
+            <el-popconfirm title="是否确认删除?" @confirm="handleDelete">
               <template #reference>
                 <el-button type="danger" text class="mr-1">
                   批量删除
@@ -216,11 +218,10 @@ const {
                   type="primary"
                   :size="size"
                   :icon="useRenderIcon(More)"
-                  @click="handleUpdate(row)"
                 />
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <!-- <el-dropdown-item>
+                    <el-dropdown-item>
                       <el-button
                         :class="buttonClass"
                         link
@@ -231,7 +232,7 @@ const {
                       >
                         上传头像
                       </el-button>
-                    </el-dropdown-item> -->
+                    </el-dropdown-item>
                     <el-dropdown-item>
                       <el-button
                         :class="buttonClass"
@@ -244,7 +245,7 @@ const {
                         重置密码
                       </el-button>
                     </el-dropdown-item>
-                    <!-- <el-dropdown-item>
+                    <el-dropdown-item>
                       <el-button
                         :class="buttonClass"
                         link
@@ -255,7 +256,7 @@ const {
                       >
                         分配角色
                       </el-button>
-                    </el-dropdown-item> -->
+                    </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
