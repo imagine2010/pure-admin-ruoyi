@@ -98,7 +98,7 @@ export const authUserCancelAll = (data: object) => {
 };
 
 // 授权用户选择
-export const authUserSelect = (data: object) => {
+export const authUserSelectAll = (data: object) => {
   return http.request<ResponseType>(
     "put",
     baseUrlApi("system/role/authUser/select"),

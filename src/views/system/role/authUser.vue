@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { useRole } from "./utils/hook";
+import { useAuthUser } from "./utils/useAuthUser";
 import { ref } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
 
-import Database from "@iconify-icons/ri/database-2-line";
-import More from "@iconify-icons/ep/more-filled";
-import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
-import Menu from "@iconify-icons/ep/menu";
 import AddFill from "@iconify-icons/ri/add-circle-line";
-
+import { useRoute } from "vue-router";
+const route = useRoute();
+const paramsRoleId = ref<number | null>(null);
+if (typeof route.params.roleId === "number") {
+  paramsRoleId.value = route.params.roleId;
+}
 defineOptions({
-  name: "SystemRole"
+  name: "AuthUser"
 });
 
-const treeRef = ref();
 const formRef = ref();
 const tableRef = ref();
 const contentRef = ref();
@@ -31,23 +31,17 @@ const {
   rowStyle,
   dataList,
   pagination,
-  buttonClass,
   onSearch,
   resetForm,
   openDialog,
-  handleAuthUser,
-  handleSave,
-  handleDelete,
-  handleExport,
   onSelectionCancel,
-  filterMethod,
-  transformI18n,
-  onQueryChanged,
-  handleDatabase,
+  cancelAuthUserAll,
+  handleClose,
+  cancelAuthUser,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
-} = useRole(tableRef, treeRef);
+} = useAuthUser(tableRef, paramsRoleId.value);
 </script>
 
 <template>
@@ -58,42 +52,20 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="角色名称：" prop="roleName">
+      <el-form-item label="用户名称：" prop="userName">
         <el-input
-          v-model="form.roleName"
-          placeholder="请输入角色名称"
+          v-model="form.userName"
+          placeholder="请输入用户名称"
           clearable
           class="!w-[180px]"
         />
       </el-form-item>
-      <el-form-item label="角色标识：" prop="roleKey">
+      <el-form-item label="手机号码：" prop="phonenumber">
         <el-input
-          v-model="form.roleKey"
-          placeholder="请输入角色标识"
+          v-model="form.phonenumber"
+          placeholder="请输入手机号码"
           clearable
           class="!w-[180px]"
-        />
-      </el-form-item>
-      <el-form-item label="状态：" prop="status">
-        <el-select
-          v-model="form.status"
-          placeholder="请选择状态"
-          clearable
-          class="!w-[180px]"
-        >
-          <el-option label="启用" value="0" />
-          <el-option label="停用" value="1" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="创建时间：" prop="daterange">
-        <el-date-picker
-          v-model="form.daterange"
-          type="daterange"
-          value-format="YYYY-MM-DD"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          class="!w-[280px]"
         />
       </el-form-item>
       <el-form-item>
@@ -118,7 +90,7 @@ const {
       <PureTableBar
         :class="[isShow && !deviceDetection() ? '!w-[60vw]' : 'w-full']"
         style="transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1)"
-        title="角色管理"
+        title="分配用户"
         :columns="columns"
         @refresh="onSearch"
       >
@@ -128,9 +100,9 @@ const {
             :icon="useRenderIcon(AddFill)"
             @click="openDialog()"
           >
-            新增角色
+            添加用户
           </el-button>
-          <el-button type="primary" @click="handleExport"> 导出 </el-button>
+          <el-button type="primary" @click="handleClose"> 关闭 </el-button>
         </template>
         <template v-slot="{ size, dynamicColumns }">
           <div
@@ -149,10 +121,13 @@ const {
                 取消选择
               </el-button>
             </div>
-            <el-popconfirm title="是否确认删除?" @confirm="handleDelete">
+            <el-popconfirm
+              title="是否确认批量取消授权?"
+              @confirm="cancelAuthUserAll"
+            >
               <template #reference>
                 <el-button type="danger" text class="mr-1">
-                  批量删除
+                  批量取消授权
                 </el-button>
               </template>
             </el-popconfirm>
@@ -181,71 +156,15 @@ const {
           >
             <template #operation="{ row }">
               <el-button
-                v-if="row.roleId !== 1"
                 class="reset-margin"
                 link
                 type="primary"
                 :size="size"
                 :icon="useRenderIcon(EditPen)"
-                @click="openDialog('修改', row)"
+                @click="cancelAuthUser(row)"
               >
-                修改
+                取消授权
               </el-button>
-              <el-popconfirm
-                v-if="row.roleId !== 1"
-                :title="`是否确认删除角色名称为${row.roleName}的这条数据`"
-                @confirm="handleDelete(row)"
-              >
-                <template #reference>
-                  <el-button
-                    class="reset-margin"
-                    link
-                    type="primary"
-                    :size="size"
-                    :icon="useRenderIcon(Delete)"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-popconfirm>
-
-              <el-dropdown v-if="row.roleId !== 1">
-                <el-button
-                  class="ml-3 mt-[2px]"
-                  link
-                  type="primary"
-                  :size="size"
-                  :icon="useRenderIcon(More)"
-                />
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item>
-                      <el-button
-                        :class="buttonClass"
-                        link
-                        type="primary"
-                        :size="size"
-                        :icon="useRenderIcon(Database)"
-                        @click="handleDatabase"
-                      >
-                        数据权限
-                      </el-button>
-                    </el-dropdown-item>
-                    <el-dropdown-item>
-                      <el-button
-                        class="reset-margin"
-                        link
-                        type="primary"
-                        :size="size"
-                        :icon="useRenderIcon(Menu)"
-                        @click="handleAuthUser(row)"
-                      >
-                        分配用户
-                      </el-button>
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
             </template>
           </pure-table>
         </template>

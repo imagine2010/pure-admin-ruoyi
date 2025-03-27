@@ -21,6 +21,7 @@ import {
 import { treeselect, roleMenuTreeselect } from "@/api/system/menu";
 
 import { type Ref, reactive, ref, onMounted, h, toRaw, computed } from "vue";
+import router from "@/router";
 
 export function useRole(tableRef: Ref, treeRef: Ref) {
   const form = reactive({
@@ -135,7 +136,7 @@ export function useRole(tableRef: Ref, treeRef: Ref) {
 
   /** 当CheckBox选择项发生变化时会触发该事件 */
   function handleSelectionChange(val) {
-    ids.value = val.map(item => item.userId);
+    ids.value = val.map(item => item.roleId);
     selectedNum.value = val.length;
     // 重置表格高度
     tableRef.value.setAdaptive();
@@ -280,17 +281,13 @@ export function useRole(tableRef: Ref, treeRef: Ref) {
     }
   }
 
-  /** 菜单权限 */
-  async function handleMenu(row?: any) {
+  /** 分配用户 */
+  async function handleAuthUser(row?: any) {
     const { roleId } = row;
     if (roleId) {
-      curRow.value = row;
-      isShow.value = true;
-      const { data } = await getRole(roleId);
-      treeRef.value.setCheckedKeys(data);
-    } else {
-      curRow.value = null;
-      isShow.value = false;
+      router.push({
+        path: `/system/user-auth/${roleId}`
+      });
     }
   }
 
@@ -345,7 +342,7 @@ export function useRole(tableRef: Ref, treeRef: Ref) {
     onSearch,
     resetForm,
     openDialog,
-    handleMenu,
+    handleAuthUser,
     handleSave,
     handleDelete,
     handleExport,

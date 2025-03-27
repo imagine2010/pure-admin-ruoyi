@@ -186,6 +186,7 @@ const {
           >
             <template #operation="{ row }">
               <el-button
+                v-if="row.userId !== 1"
                 class="reset-margin"
                 link
                 type="primary"
@@ -196,6 +197,7 @@ const {
                 修改
               </el-button>
               <el-popconfirm
+                v-if="row.userId !== 1"
                 :title="`是否确认删除用户编号为${row.userId}的这条数据`"
                 @confirm="handleDelete(row)"
               >
@@ -211,7 +213,7 @@ const {
                   </el-button>
                 </template>
               </el-popconfirm>
-              <el-dropdown>
+              <el-dropdown v-if="row.userId !== 1">
                 <el-button
                   class="ml-3 mt-[2px]"
                   link
