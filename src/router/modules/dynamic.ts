@@ -13,30 +13,31 @@ export default [
   //       roles: ["admin", "common"]
   //     }
   //   }
-  {
-    path: "/system/user-auth",
-    // name: "userAuth",
-    component: Layout,
-    meta: {
-      showLink: false,
-      title: "分配角色",
-      rank: 100
-    },
-    // permissions: ["system:user:edit"],
-    children: [
-      {
-        path: "/system/user-auth/:id(\\d+)",
-        name: "AuthRole",
-        component: () => import("@/views/system/user/form/authRole.vue"),
-        meta: {
-          showLink: false,
-          title: "分配角色",
-          activePath: "/system/user",
-          roles: ["admin"]
-        }
-      }
-    ]
-  },
+
+  // {
+  //   path: "/system/user-auth",
+  //   // name: "userAuth",
+  //   component: Layout,
+  //   meta: {
+  //     showLink: false,
+  //     title: "分配角色",
+  //     rank: 100
+  //   },
+  //   // permissions: ["system:user:edit"],
+  //   children: [
+  //     {
+  //       path: "/system/user-auth/:id(\\d+)",
+  //       name: "AuthRole",
+  //       component: () => import("@/views/system/user/form/authRole.vue"),
+  //       meta: {
+  //         showLink: false,
+  //         title: "分配角色",
+  //         activePath: "/system/user",
+  //         roles: ["admin"]
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: "/system/role-auth",
     // name: "userAuth",

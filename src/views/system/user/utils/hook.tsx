@@ -12,8 +12,13 @@ import type { PaginationProps } from "@pureadmin/table";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import type { FormItemProps, RoleFormItemProps } from "../utils/types";
 import { addDateRange } from "@/utils/date";
-import { downloadByData } from "@pureadmin/utils";
-import { isAllEmpty, hideTextAtIndex, deviceDetection } from "@pureadmin/utils";
+import {
+  isAllEmpty,
+  hideTextAtIndex,
+  deviceDetection,
+  downloadByData
+} from "@pureadmin/utils";
+import { getToken } from "@/utils/auth";
 import {
   listUser,
   getUser,
@@ -26,7 +31,8 @@ import {
   changeUserStatus,
   getAuthRole,
   updateAuthRole,
-  exportUser
+  exportUser,
+  importTemplate
 } from "@/api/system/user";
 import { listRole } from "@/api/system/role";
 import {
@@ -35,6 +41,11 @@ import {
   ElFormItem,
   ElProgress,
   ElMessageBox
+} from "element-plus";
+import type {
+  UploadProgressEvent,
+  UploadFile,
+  UploadFiles
 } from "element-plus";
 import {
   type Ref,
@@ -253,7 +264,48 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   async function handleImport() {
+    // 上传配置信息
+    const uploadConfig = {
+      url: import.meta.env.VITE_BASE_API + "/system/user/importData",
+      headers: { Authorization: "Bearer " + getToken().accessToken }
+    };
+    const uploadState = reactive({
+      updateSupport: false,
+      isUploading: false
+    });
+
     let uploadRef = null;
+
+    const handleFileProgress = (
+      // 参数仅为占位符
+      _evt: UploadProgressEvent,
+      _uploadFile: UploadFile,
+      _uploadFiles: UploadFiles
+    ) => {
+      uploadState.isUploading = true;
+    };
+
+    const handleFileSuccess = (
+      response: any,
+      _uploadFile: UploadFile,
+      _uploadFiles: UploadFiles
+    ) => {
+      uploadState.isUploading = false;
+      ElMessageBox.alert(
+        `<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>${response.msg}</div>`,
+        "导入结果",
+        { dangerouslyUseHTMLString: true }
+      );
+    };
+
+    const handleImportTemplate = () => {
+      importTemplate().then(res => {
+        downloadByData(
+          res as Blob,
+          `user_template_${new Date().getTime()}.xlsx`
+        );
+      });
+    };
     addDialog({
       title: "导入用户",
       width: "400px",
@@ -262,15 +314,40 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () =>
-        h(importForm, {
-          ref: ref => {
-            uploadRef = ref; // 获取子组件的引用
+        h(
+          importForm,
+          {
+            // 传递上传配置和回调
+            ref: ref => {
+              uploadRef = ref;
+            },
+            uploadConfig,
+            updateSupport: uploadState.updateSupport,
+            onFileProgress: handleFileProgress,
+            onFileSuccess: handleFileSuccess,
+            "onUpdate:updateSupport": val => {
+              uploadState.updateSupport = val;
+            }
+          },
+          {
+            "template-download": () =>
+              h(
+                "el-link",
+                {
+                  type: "primary",
+                  underline: false,
+                  style:
+                    "font-size: 12px; vertical-align: baseline;color: var(--el-color-primary);",
+                  onClick: handleImportTemplate
+                },
+                "下载模板"
+              )
           }
-        }),
+        ),
       beforeSure: async done => {
-        if (uploadRef && uploadRef.startUpload) {
+        if (uploadRef && uploadRef.submit) {
           try {
-            await uploadRef.startUpload(); // 调用子组件的上传方法
+            await uploadRef.submit();
             message("文件上传成功", { type: "success" });
             done();
             onSearch();

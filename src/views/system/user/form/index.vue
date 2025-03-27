@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     title: "新增",
     deptId: 0,
-    higherDeptOptions: [],
+    deptOptions: [],
     roleOptions: [],
     nickName: "",
     userName: "",
@@ -146,7 +146,7 @@ defineExpose({ getRef });
           <el-cascader
             v-model="newFormInline.deptId"
             class="w-full"
-            :options="newFormInline.higherDeptOptions"
+            :options="newFormInline.deptOptions"
             :props="{
               value: 'id',
               label: 'label',
