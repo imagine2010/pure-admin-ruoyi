@@ -55,3 +55,10 @@ export const delData = dictCode => {
     baseUrlApi(`system/dict/data/${dictCode}`)
   );
 };
+// 导出字典数据列表
+export const exportDictData = (query?: object) => {
+  return http.request("post", baseUrlApi("system/dict/data/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};

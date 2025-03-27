@@ -66,3 +66,10 @@ export function runJob(jobId, jobGroup) {
     data: data
   });
 }
+// 导出定时任务
+export const exportJob = (query?: object) => {
+  return http.request("post", baseUrlApi("system/job/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};

@@ -17,3 +17,11 @@ export const delJobLog = jobLogId => {
 export const cleanJobLog = () => {
   return http.request("delete", baseUrlApi(`monitor/jobLog/clean`));
 };
+
+// 导出调度日志
+export const exportJobLog = (query?: object) => {
+  return http.request("post", baseUrlApi("system/jobLog/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};

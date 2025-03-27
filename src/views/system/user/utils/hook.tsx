@@ -1,7 +1,7 @@
 import "./reset.css";
 import dayjs from "dayjs";
-import roleForm from "../form/role.vue";
-import importForm from "../form/import.vue";
+import roleForm from "../form/authRole.vue";
+import importForm from "../form/importUser.vue";
 import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { message } from "@/utils/message";

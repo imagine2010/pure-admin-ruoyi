@@ -23,3 +23,11 @@ export const delOperlog = operId => {
 export const cleanOperlog = () => {
   return http.request("delete", baseUrlApi(`monitor/operlog/clean`));
 };
+
+// 导出操作日志
+export const exportOperlog = (query?: object) => {
+  return http.request("post", baseUrlApi("system/operlog/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};

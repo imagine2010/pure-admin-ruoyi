@@ -39,3 +39,11 @@ export const unlockLogininfor = userName => {
 export const cleanLogininfor = () => {
   return http.request("delete", baseUrlApi(`monitor/logininfor/clean`));
 };
+
+// 导出登录日志
+export const exportLogininfor = (query?: object) => {
+  return http.request("post", baseUrlApi("system/logininfor/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};

@@ -44,7 +44,7 @@
     "src/**/*.vue",
     "types/*.d.ts",
     "vite.config.ts"
-  ],
+, "src/views/system/user/form/import.Uservue"  ],
   "exclude": [
     "dist",
     "**/*.js",

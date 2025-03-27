@@ -1,28 +1,28 @@
 import dayjs from "dayjs";
-import editForm from "../form.vue";
+import editForm from "../form/index.vue";
 // import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-// import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "../../hooks";
 import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import type { FormItemProps } from "../utils/types";
 import type { PaginationProps } from "@pureadmin/table";
-import { deviceDetection } from "@pureadmin/utils";
+import { deviceDetection, downloadByData } from "@pureadmin/utils";
 import { addDateRange } from "@/utils/date";
 
 import {
   listRole,
-  getRoleMenuIds,
+  getRole,
   addRole,
   updateRole,
-  delRole
+  delRole,
+  exportRole
 } from "@/api/system/role";
-import { treeselect } from "@/api/system/menu";
+import { treeselect, roleMenuTreeselect } from "@/api/system/menu";
 
-import { type Ref, reactive, ref, onMounted, h, toRaw, watch } from "vue";
+import { type Ref, reactive, ref, onMounted, h, toRaw, computed } from "vue";
 
-export function useRole(treeRef: Ref) {
+export function useRole(tableRef: Ref, treeRef: Ref) {
   const form = reactive({
     roleName: "",
     roleKey: "",
@@ -35,20 +35,13 @@ export function useRole(treeRef: Ref) {
   const curRow = ref();
   const formRef = ref();
   const dataList = ref([]);
+  const selectedNum = ref(0);
+  const ids = ref([]);
   const treeIds = ref([]);
   const treeData = ref([]);
   const isShow = ref(false);
   const loading = ref(true);
-  const isLinkage = ref(false);
-  const treeSearchValue = ref();
-  const isExpandAll = ref(false);
-  const isSelectAll = ref(false);
 
-  const treeProps = {
-    value: "id",
-    label: "label",
-    children: "children"
-  };
   const pagination = reactive<PaginationProps>({
     total: 0,
     pageSize: 10,
@@ -56,6 +49,12 @@ export function useRole(treeRef: Ref) {
     background: true
   });
   const columns: TableColumnList = [
+    {
+      label: "勾选列", // 如果需要表格多选，此处label必须设置
+      type: "selection",
+      fixed: "left",
+      reserveSelection: true // 数据刷新后保留选项
+    },
     {
       label: "角色编号",
       prop: "roleId"
@@ -96,25 +95,30 @@ export function useRole(treeRef: Ref) {
       slot: "operation"
     }
   ];
-  // const buttonClass = computed(() => {
-  //   return [
-  //     "!h-[20px]",
-  //     "reset-margin",
-  //     "!text-gray-500",
-  //     "dark:!text-white",
-  //     "dark:hover:!text-primary"
-  //   ];
-  // });
+  const buttonClass = computed(() => {
+    return [
+      "!h-[20px]",
+      "reset-margin",
+      "!text-gray-500",
+      "dark:!text-white",
+      "dark:hover:!text-primary"
+    ];
+  });
 
   function handleDelete(row) {
-    delRole(row.roleId).then(res => {
-      if (res.code == 200) {
-        message(`您删除了角色名称为${row.roleName}的这条数据`, {
+    const roleIds = row.roleId || ids.value;
+    if (roleIds == null || roleIds == undefined || roleIds == "") {
+      message("请先选择需要删除的角色", {
+        type: "warning"
+      });
+      return;
+    }
+    delRole(roleIds).then(res => {
+      if (res?.code == 200) {
+        message(`您删除了用户编号为${roleIds}的这条数据`, {
           type: "success"
         });
         onSearch();
-      } else {
-        message(res.msg, { type: "error" });
       }
     });
   }
@@ -129,8 +133,20 @@ export function useRole(treeRef: Ref) {
     onSearch();
   }
 
+  /** 当CheckBox选择项发生变化时会触发该事件 */
   function handleSelectionChange(val) {
-    console.log("handleSelectionChange", val);
+    ids.value = val.map(item => item.userId);
+    selectedNum.value = val.length;
+    // 重置表格高度
+    tableRef.value.setAdaptive();
+  }
+
+  /** 取消选择 */
+  function onSelectionCancel() {
+    selectedNum.value = 0;
+    ids.value = [];
+    // 用于多选表格，清空用户的选择
+    tableRef.value.getTableRef().clearSelection();
   }
 
   async function onSearch() {
@@ -152,65 +168,116 @@ export function useRole(treeRef: Ref) {
     onSearch();
   };
 
-  function openDialog(title = "新增", row?: FormItemProps) {
-    addDialog({
-      title: `${title}角色`,
-      props: {
-        formInline: {
-          roleName: row?.roleName ?? "",
-          roleId: row?.roleId ?? "",
-          roleKey: row?.roleKey ?? "",
-          remark: row?.remark ?? "",
-          status: row?.status ?? "",
-          menuIds: row?.menuIds ?? [],
-          menuCheckStrictly: row?.menuCheckStrictly ?? true,
-          roleSort: row?.roleSort ?? 0
-        }
-      },
-      width: "40%",
-      draggable: true,
-      fullscreen: deviceDetection(),
-      fullscreenIcon: true,
-      closeOnClickModal: false,
-      contentRenderer: () =>
-        h(editForm, {
-          ref: formRef,
-          formInline: null
-        }),
-      beforeSure: (done, { options }) => {
-        const FormRef = formRef.value.getRef();
-        const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了角色名称为${curData.roleName}的这条数据`, {
-            type: "success"
-          });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
-          if (valid) {
-            // 表单规则校验通过
-            if (title === "新增") {
-              addRole(curData).then(res => {
-                if (res.code == 200) {
-                  chores();
-                } else {
-                  message(res.msg, { type: "error" });
-                }
-              });
-            } else {
-              updateRole(curData).then(res => {
-                if (res.code == 200) {
-                  chores();
-                } else {
-                  message(res.msg, { type: "error" });
-                }
-              });
-            }
-          }
-        });
-      }
+  function handleExport() {
+    exportRole(toRaw(form)).then(res => {
+      downloadByData(res as Blob, `user_${new Date().getTime()}.xlsx`);
     });
+  }
+
+  async function openDialog(title = "新增", row?: FormItemProps) {
+    const resData = ref();
+    const resMenuIds = ref();
+    try {
+      let res;
+      if (title === "新增") {
+        res = await treeselect();
+        if (res.code !== 200) {
+          message(res.msg || "获取菜单树失败", { type: "error" });
+          return;
+        }
+        treeData.value = res.data;
+        treeIds.value = res.data.map(item => item.id);
+      } else {
+        const [roleRes, menuRes] = await Promise.all([
+          getRole(row.roleId), // 获取角色基础信息
+          roleMenuTreeselect(row.roleId) // 获取菜单树及选中项
+        ]);
+        if (roleRes.code !== 200 || menuRes.code !== 200) {
+          message(
+            roleRes.code !== 200
+              ? roleRes.msg
+              : menuRes.msg || "获取角色数据失败",
+            { type: "error" }
+          );
+          return;
+        }
+        resData.value = roleRes.data;
+        treeData.value = menuRes.menus;
+        treeIds.value = menuRes.menus.map(item => item.id);
+        resMenuIds.value = menuRes.checkedKeys;
+      }
+      addDialog({
+        title: `${title}角色`,
+        props: {
+          formInline: {
+            roleName: row?.roleName ?? "",
+            roleId: row?.roleId ?? "",
+            roleKey: row?.roleKey ?? "",
+            remark: row?.remark ?? "",
+            status: row?.status ?? "",
+            menuIds: title == "新增" ? [] : resMenuIds.value,
+            menuCheckStrictly: row?.menuCheckStrictly ?? true,
+            roleSort: row?.roleSort ?? 0
+          },
+          treeData: treeData.value,
+          treeIds: treeIds.value
+        },
+        width: "46%",
+        draggable: true,
+        fullscreen: deviceDetection(),
+        fullscreenIcon: true,
+        closeOnClickModal: false,
+        contentRenderer: () =>
+          h(editForm, {
+            ref: formRef,
+            formInline: null,
+            treeData: treeData.value,
+            treeIds: treeIds.value
+          }),
+        beforeSure: (done, { options }) => {
+          const FormRef = formRef.value.getRef();
+          const curData = options.props.formInline as FormItemProps;
+          function chores() {
+            message(`您${title}了角色名称为${curData.roleName}的这条数据`, {
+              type: "success"
+            });
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
+          }
+          FormRef.validate(valid => {
+            if (valid) {
+              curData.menuIds = formRef.value.getTreeRef().getCheckedKeys();
+              if (title === "新增") {
+                addRole(curData).then(res => {
+                  if (res.code == 200) {
+                    chores();
+                  } else {
+                    message(res.msg, {
+                      type: "error"
+                    });
+                  }
+                });
+              } else {
+                updateRole(curData).then(res => {
+                  if (res.code == 200) {
+                    chores();
+                  } else {
+                    message(res.msg, {
+                      type: "error"
+                    });
+                  }
+                });
+              }
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching role data:", error);
+      message("获取角色数据失败", {
+        type: "error"
+      });
+    }
   }
 
   /** 菜单权限 */
@@ -219,7 +286,7 @@ export function useRole(treeRef: Ref) {
     if (roleId) {
       curRow.value = row;
       isShow.value = true;
-      const { data } = await getRoleMenuIds(roleId);
+      const { data } = await getRole(roleId);
       treeRef.value.setCheckedKeys(data);
     } else {
       curRow.value = null;
@@ -245,8 +312,10 @@ export function useRole(treeRef: Ref) {
     });
   }
 
-  /** 数据权限 可自行开发 */
-  // function handleDatabase() {}
+  /** 数据权限  */
+  function handleDatabase() {
+    console.log("handleDatabase");
+  }
 
   const onQueryChanged = (query: string) => {
     treeRef.value!.filter(query);
@@ -258,25 +327,12 @@ export function useRole(treeRef: Ref) {
 
   onMounted(async () => {
     onSearch();
-    const { data } = await treeselect();
-    // treeIds.value = getKeyList(data, "id");
-    treeData.value = data;
-  });
-
-  watch(isExpandAll, val => {
-    val
-      ? treeRef.value.setExpandedKeys(treeIds.value)
-      : treeRef.value.setExpandedKeys([]);
-  });
-
-  watch(isSelectAll, val => {
-    val
-      ? treeRef.value.setCheckedKeys(treeIds.value)
-      : treeRef.value.setCheckedKeys([]);
   });
 
   return {
     form,
+    selectedNum,
+    // ids,
     isShow,
     curRow,
     loading,
@@ -284,23 +340,20 @@ export function useRole(treeRef: Ref) {
     rowStyle,
     dataList,
     treeData,
-    treeProps,
-    isLinkage,
     pagination,
-    isExpandAll,
-    isSelectAll,
-    treeSearchValue,
-    // buttonClass,
+    buttonClass,
     onSearch,
     resetForm,
     openDialog,
     handleMenu,
     handleSave,
     handleDelete,
+    handleExport,
+    onSelectionCancel,
     filterMethod,
     transformI18n,
     onQueryChanged,
-    // handleDatabase,
+    handleDatabase,
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange

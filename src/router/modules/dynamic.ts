@@ -52,7 +52,7 @@ export default [
       {
         path: "/system/user-auth/:id(\\d+)",
         name: "AuthUser",
-        component: () => import("@/views/system/role/authUser.vue"),
+        component: () => import("@/views/system/role/form/authUser.vue"),
         meta: {
           showLink: false,
           title: "分配用户",

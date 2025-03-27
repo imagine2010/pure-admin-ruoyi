@@ -14,22 +14,9 @@ export const listRole = (query?: object) => {
     params: query
   });
 };
-// 查询角色列表（排除节点）
-export const getRoleMenu = () => {
-  return http.request<ResponseType>(
-    "get",
-    baseUrlApi("system/role/getRoleList")
-  );
-};
-// export const getRoleMenuIds = () => {
-//   return http.request<ResponseType>(
-//     "get",
-//     baseUrlApi("system/role/getRoleList")
-//   );
-// };
 
 // 查询角色详细
-export const getRoleMenuIds = (roleId: string) => {
+export const getRole = (roleId?: string) => {
   return http.request<ResponseType>("get", baseUrlApi(`system/role/${roleId}`));
 };
 
@@ -127,4 +114,12 @@ export const deptTreeSelect = (roleId: string) => {
     "get",
     baseUrlApi(`system/role/deptTree/${roleId}`)
   );
+};
+
+// 导出角色列表
+export const exportRole = (query?: object) => {
+  return http.request("post", baseUrlApi("system/role/export"), {
+    params: query,
+    responseType: "blob"
+  });
 };

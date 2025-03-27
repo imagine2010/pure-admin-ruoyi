@@ -8,6 +8,13 @@ type ResponseType = {
   data?: any;
   msg: string;
 };
+type roleMenuTreeselectType = {
+  code: number;
+  checkedKeys?: Array<any>;
+  total?: number;
+  menus?: Array<any>;
+  msg?: string;
+};
 // 查询菜单列表
 export const getMenuList = (query?: object) => {
   return http.request<ResponseType>("get", baseUrlApi("system/menu/list"), {
@@ -30,7 +37,7 @@ export const treeselect = () => {
 
 // 根据角色ID查询菜单下拉树结构
 export const roleMenuTreeselect = (roleId: string) => {
-  return http.request<ResponseType>(
+  return http.request<roleMenuTreeselectType>(
     "get",
     baseUrlApi(`system/menu/roleMenuTreeselect/${roleId}`)
   );

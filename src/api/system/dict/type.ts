@@ -63,3 +63,11 @@ export const optionselect = () => {
     baseUrlApi("system/dict/type/optionselect")
   );
 };
+
+// 导出字典类型列表
+export const exportDictType = (query?: object) => {
+  return http.request("post", baseUrlApi("system/dict/type/export"), {
+    params: query,
+    responseType: "blob"
+  });
+};

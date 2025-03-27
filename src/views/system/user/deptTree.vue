@@ -153,8 +153,8 @@ defineExpose({ onTreeReset });
     <el-divider />
     <el-scrollbar height="calc(90vh - 88px)">
       <el-tree
-        ref="treeRef"
         v-if="treeData?.length > 0"
+        ref="treeRef"
         :data="treeData"
         node-key="id"
         size="small"
