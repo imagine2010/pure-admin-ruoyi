@@ -1,36 +1,114 @@
 <script setup lang="ts">
-import { useAuthUser } from "../utils/useAuthUser";
-import { ref } from "vue";
-import { PureTableBar } from "@/components/RePureTableBar";
+import { ref, reactive, onMounted } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { deviceDetection } from "@pureadmin/utils";
-
+import { unallocatedUserList } from "@/api/system/role";
 import Refresh from "@iconify-icons/ep/refresh";
-
+import dayjs from "dayjs";
 defineOptions({
   name: "SelectUser"
 });
+const props = defineProps({
+  roleId: {
+    type: Number,
+    required: true
+  }
+});
+const dialogForm = reactive({
+  userName: "",
+  phonenumber: "",
+  roleId: props.roleId,
+  pageNum: 1,
+  pageSize: 10
+});
+const pagination = reactive({
+  total: 0,
+  pageSize: 10,
+  currentPage: 1,
+  background: true
+});
 
-const formRef = ref();
 const tableRef = ref();
-const contentRef = ref();
+const dataList = ref([]);
+const loading = ref(false);
+const selectedUserIds = ref<number[]>([]);
 
-const {
-  form,
-  selectedNum,
-  isShow,
-  loading,
-  columns,
-  rowStyle,
-  dataList,
-  pagination,
-  onSearch,
-  resetForm,
-  handleSizeChange,
-  handleCurrentChange,
-  handleSelectionChange
-} = useAuthUser(tableRef);
-columns.pop();
+const columns = [
+  {
+    label: "勾选列",
+    type: "selection",
+    fixed: "left",
+    reserveSelection: true
+  },
+  {
+    label: "用户名称",
+    prop: "userName"
+  },
+  {
+    label: "用户昵称",
+    prop: "nickName"
+  },
+  {
+    label: "邮箱",
+    prop: "email"
+  },
+  {
+    label: "手机",
+    prop: "phonenumber"
+  },
+  {
+    label: "状态",
+    prop: "status"
+  },
+  {
+    label: "创建时间",
+    formatter: ({ createTime }) =>
+      dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+  }
+];
+
+const fetchData = async () => {
+  try {
+    loading.value = true;
+    const { rows, total } = await unallocatedUserList(dialogForm);
+    dataList.value = rows;
+    pagination.total = total;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleSearch = () => {
+  dialogForm.pageNum = 1;
+  fetchData();
+};
+
+const resetDialogForm = () => {
+  dialogForm.userName = "";
+  dialogForm.phonenumber = "";
+  handleSearch();
+};
+
+const handleSizeChange = (val: number) => {
+  dialogForm.pageSize = val;
+  fetchData();
+};
+
+const handleCurrentChange = (val: number) => {
+  dialogForm.pageNum = val;
+  fetchData();
+};
+
+const handleSelectionChange = val => {
+  selectedUserIds.value = val.map(item => item.userId);
+};
+
+defineExpose({
+  selectedUserIds
+});
+
+onMounted(() => {
+  fetchData();
+});
 </script>
 
 <template>
@@ -38,12 +116,12 @@ columns.pop();
     <el-form
       ref="formRef"
       :inline="true"
-      :model="form"
+      :model="dialogForm"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
       <el-form-item label="用户名称：" prop="userName">
         <el-input
-          v-model="form.userName"
+          v-model="dialogForm.userName"
           placeholder="请输入用户名称"
           clearable
           class="!w-[180px]"
@@ -51,7 +129,7 @@ columns.pop();
       </el-form-item>
       <el-form-item label="手机号码：" prop="phonenumber">
         <el-input
-          v-model="form.phonenumber"
+          v-model="dialogForm.phonenumber"
           placeholder="请输入手机号码"
           clearable
           class="!w-[180px]"
@@ -62,61 +140,34 @@ columns.pop();
           type="primary"
           :icon="useRenderIcon('ri:search-line')"
           :loading="loading"
-          @click="onSearch"
+          @click="handleSearch"
         >
           搜索
         </el-button>
-        <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
+        <el-button :icon="useRenderIcon(Refresh)" @click="resetDialogForm">
           重置
         </el-button>
       </el-form-item>
     </el-form>
-
-    <div
-      ref="contentRef"
-      :class="['flex', deviceDetection() ? 'flex-wrap' : '']"
+    <pure-table
+      ref="tableRef"
+      row-key="userId"
+      :data="dataList"
+      :columns="columns"
+      :pagination="pagination"
+      :loading="loading"
+      @selection-change="handleSelectionChange"
+      @page-size-change="handleSizeChange"
+      @page-current-change="handleCurrentChange"
     >
-      <PureTableBar
-        :class="[isShow && !deviceDetection() ? '!w-[60vw]' : 'w-full']"
-        style="transition: width 220ms cubic-bezier(0.4, 0, 0.2, 1)"
-        title="未分配用户列表"
-        :columns="columns"
-        @refresh="onSearch"
-      >
-        <template v-slot="{ size, dynamicColumns }">
-          <pure-table
-            ref="tableRef"
-            row-key="roleId"
-            align-whole="center"
-            showOverflowTooltip
-            table-layout="auto"
-            :loading="loading"
-            :size="size"
-            adaptive
-            :row-style="rowStyle"
-            :adaptiveConfig="{ offsetBottom: 108 }"
-            :data="dataList"
-            :columns="dynamicColumns"
-            :pagination="{ ...pagination, size }"
-            :header-cell-style="{
-              background: 'var(--el-fill-color-light)',
-              color: 'var(--el-text-color-primary)'
-            }"
-            @selection-change="handleSelectionChange"
-            @page-size-change="handleSizeChange"
-            @page-current-change="handleCurrentChange"
-          />
-        </template>
-      </PureTableBar>
-    </div>
+      <template #empty>
+        <el-empty description="暂无未分配用户" />
+      </template>
+    </pure-table>
   </div>
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-dropdown-menu__item i) {
-  margin: 0;
-}
-
 .search-form {
   :deep(.el-form-item) {
     margin-bottom: 12px;

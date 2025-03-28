@@ -10,13 +10,12 @@ import {
   allocatedUserList,
   authUserCancel,
   authUserCancelAll,
-  authUserSelectAll,
-  unallocatedUserList
+  authUserSelectAll
 } from "@/api/system/role";
 import { type Ref, reactive, ref, onMounted, h, toRaw } from "vue";
 import { ElMessageBox } from "element-plus";
 
-export function useAuthUser(tableRef: Ref, paramsRoleId?: number) {
+export function useAuthUser(tableRef: Ref, paramsRoleId: number) {
   const form = reactive({
     userName: "",
     phonenumber: "",
@@ -167,37 +166,44 @@ export function useAuthUser(tableRef: Ref, paramsRoleId?: number) {
   };
 
   async function openDialog() {
-    try {
-      let res;
-      res = await unallocatedUserList(form);
-      if (res.code !== 200) {
-        message(res.msg || "获取未授权用户失败", { type: "error" });
-        return;
-      }
-      dataList.value = res.rows;
-      addDialog({
-        title: `新增用户`,
-        props: {},
-        width: "46%",
-        draggable: true,
-        fullscreen: deviceDetection(),
-        fullscreenIcon: true,
-        closeOnClickModal: false,
-        contentRenderer: () => h(editForm),
-        beforeSure: done => {
-          authUserSelectAll({
-            roleId: form.roleId
-            // userIds: options.userIds.join(",")
-          });
-          done();
+    // 创建对话框引用存储
+    const dialogRef = ref<{
+      selectedUserIds: number[];
+    }>();
+    addDialog({
+      title: `新增用户`,
+      props: {
+        roleId: form.roleId
+      },
+      width: "46%",
+      draggable: true,
+      fullscreen: deviceDetection(),
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      contentRenderer: () =>
+        h(editForm, {
+          ref: el => (dialogRef.value = el as any),
+          roleId: form.roleId // 传递roleId参数
+        }),
+      beforeSure: done => {
+        if (!dialogRef.value?.selectedUserIds?.length) {
+          message("请先选择要授权的用户", { type: "warning" });
+          return done(false);
         }
-      });
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      message("获取未授权用户失败", {
-        type: "error"
-      });
-    }
+        authUserSelectAll({
+          roleId: form.roleId,
+          userIds: dialogRef.value.selectedUserIds.join(",")
+        })
+          .then(res => {
+            if (res.code === 200) {
+              message("用户授权成功", { type: "success" });
+              done();
+              onSearch();
+            }
+          })
+          .catch(() => done(false));
+      }
+    });
   }
 
   /** 高亮当前权限选中行 */

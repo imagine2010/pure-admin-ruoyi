@@ -11,9 +11,8 @@ import AddFill from "@iconify-icons/ri/add-circle-line";
 import { useRoute } from "vue-router";
 const route = useRoute();
 const paramsRoleId = ref<number | null>(null);
-if (typeof route.params.roleId === "number") {
-  paramsRoleId.value = route.params.roleId;
-}
+paramsRoleId.value = Number(route.params.id);
+
 defineOptions({
   name: "AuthUser"
 });

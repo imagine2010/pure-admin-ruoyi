@@ -112,6 +112,12 @@ const whiteList = ["/login"];
 const { VITE_HIDE_HOME } = import.meta.env;
 
 router.beforeEach((to: ToRouteType, _from, next) => {
+  console.log("路由跳转开始:", {
+    from: _from.fullPath,
+    to: to.fullPath,
+    params: to.params,
+    query: to.query
+  });
   // 如果目标路由需要缓存，处理缓存
   if (to.meta?.keepAlive) {
     handleAliveRoute(to, "add");
@@ -214,7 +220,12 @@ router.beforeEach((to: ToRouteType, _from, next) => {
   }
 });
 
-router.afterEach(() => {
+router.afterEach(to => {
+  console.log("路由跳转完成:", {
+    to: to.fullPath,
+    params: to.params,
+    query: to.query
+  });
   NProgress.done();
 });
 

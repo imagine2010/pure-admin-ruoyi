@@ -40,7 +40,6 @@ export default [
   // },
   {
     path: "/system/role-auth",
-    // name: "userAuth",
     component: Layout,
     meta: {
       showLink: false,
@@ -54,7 +53,7 @@ export default [
         name: "AuthUser",
         component: () => import("@/views/system/role/authUser.vue"),
         meta: {
-          showLink: false,
+          showLink: true,
           title: "分配用户",
           activePath: "/system/role",
           roles: ["admin"]
@@ -64,7 +63,6 @@ export default [
   },
   {
     path: "/monitor/job-log",
-    // name: "userAuth",
     component: Layout,
     meta: {
       showLink: false,

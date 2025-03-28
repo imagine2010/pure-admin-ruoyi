@@ -101,9 +101,9 @@ export const authUserCancelAll = (data: object) => {
 export const authUserSelectAll = (data: object) => {
   return http.request<ResponseType>(
     "put",
-    baseUrlApi("system/role/authUser/select"),
+    baseUrlApi("/system/role/authUser/selectAll"),
     {
-      data
+      params: data
     }
   );
 };
