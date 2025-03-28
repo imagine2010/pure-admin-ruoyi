@@ -1,14 +1,12 @@
 import dayjs from "dayjs";
 import editForm from "../form.vue";
-// import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-// import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "../../hooks";
 import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import type { FormItemProps } from "./types";
 import type { PaginationProps } from "@pureadmin/table";
-import { deviceDetection } from "@pureadmin/utils";
+import { deviceDetection, downloadByData } from "@pureadmin/utils";
 import { addDateRange } from "@/utils/date";
 import { useRouter } from "vue-router";
 
@@ -17,8 +15,9 @@ import {
   // getType,
   delType,
   addType,
-  updateType
-  // refreshCache
+  updateType,
+  exportDictType,
+  refreshCache
 } from "@/api/system/dict/type";
 
 import { reactive, ref, onMounted, h, toRaw } from "vue";
@@ -36,6 +35,7 @@ export function useDict() {
   const curRow = ref();
   const formRef = ref();
   const dataList = ref([]);
+  const selectedNum = ref(0);
   const isShow = ref(false);
   const loading = ref(true);
   const router = useRouter();
@@ -48,6 +48,12 @@ export function useDict() {
   });
   const columns: TableColumnList = [
     {
+      type: "selection",
+      width: 55,
+      align: "center"
+    },
+
+    {
       label: "字典编号",
       prop: "dictId"
     },
@@ -59,10 +65,7 @@ export function useDict() {
       label: "字典类型",
       prop: "dictType",
       cellRenderer: ({ row }) => (
-        <el-button
-          type="text"
-          onClick={() => handleDictTypeClick(row.dictType)}
-        >
+        <el-button type="text" onClick={() => handleDictTypeClick(row.dictId)}>
           {row.dictType}
         </el-button>
       )
@@ -95,6 +98,21 @@ export function useDict() {
       slot: "operation"
     }
   ];
+  function handleExport() {
+    exportDictType(toRaw(form)).then(res => {
+      downloadByData(res as Blob, `dict_type_${new Date().getTime()}.xlsx`);
+    });
+  }
+
+  function handleRefreshCache() {
+    refreshCache().then(res => {
+      if (res.code == 200) {
+        message("刷新缓存成功", { type: "success" });
+      } else {
+        message(res.msg, { type: "error" });
+      }
+    });
+  }
 
   function handleDelete(row) {
     delType(row.dictId).then(res => {
@@ -119,12 +137,15 @@ export function useDict() {
     onSearch();
   }
 
+  function onSelectionCancel(val) {
+    console.log("onSelectionCancel", val);
+  }
   function handleSelectionChange(val) {
     console.log("handleSelectionChange", val);
   }
-  // 添加处理 dictType 点击的函数
-  function handleDictTypeClick(dictType) {
-    router.push({ name: "DictTypeDetail", params: { dictType } }); // 跳转到详情页面
+
+  function handleDictTypeClick(dictId) {
+    router.push({ name: "DictData", params: { dictId } }); // 跳转到详情页面
   }
 
   async function onSearch() {
@@ -223,14 +244,17 @@ export function useDict() {
     columns,
     rowStyle,
     dataList,
+    selectedNum,
     pagination,
     handleDictTypeClick,
     onSearch,
     resetForm,
     openDialog,
     handleDelete,
+    handleRefreshCache,
+    handleExport,
     transformI18n,
-    // handleDatabase,
+    onSelectionCancel,
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange

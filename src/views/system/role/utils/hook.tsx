@@ -171,7 +171,7 @@ export function useRole(tableRef: Ref, treeRef: Ref) {
 
   function handleExport() {
     exportRole(toRaw(form)).then(res => {
-      downloadByData(res as Blob, `user_${new Date().getTime()}.xlsx`);
+      downloadByData(res as Blob, `role_${new Date().getTime()}.xlsx`);
     });
   }
 

@@ -1,66 +1,39 @@
 <script setup lang="ts">
 import { useDict } from "./utils/hook";
-import { ref, computed, nextTick, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import {
-  delay,
-  subBefore,
-  deviceDetection,
-  useResizeObserver
-} from "@pureadmin/utils";
+import { deviceDetection } from "@pureadmin/utils";
 
-// import Database from "@iconify-icons/ri/database-2-line";
-// import More from "@iconify-icons/ep/more-filled";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
-import Menu from "@iconify-icons/ep/menu";
 import AddFill from "@iconify-icons/ri/add-circle-line";
-import Close from "@iconify-icons/ep/close";
-import Check from "@iconify-icons/ep/check";
 
 defineOptions({
   name: "SystemDict"
 });
 
-const iconClass = computed(() => {
-  return [
-    "w-[22px]",
-    "h-[22px]",
-    "flex",
-    "justify-center",
-    "items-center",
-    "outline-none",
-    "rounded-[4px]",
-    "cursor-pointer",
-    "transition-colors",
-    "hover:bg-[#0000000f]",
-    "dark:hover:bg-[#ffffff1f]",
-    "dark:hover:text-[#ffffffd9]"
-  ];
-});
-
 const formRef = ref();
 const tableRef = ref();
 const contentRef = ref();
-const treeHeight = ref();
 
 const {
   form,
   isShow,
-  curRow,
   loading,
   columns,
   rowStyle,
   dataList,
+  selectedNum,
   pagination,
   onSearch,
   resetForm,
   openDialog,
   handleDelete,
-  transformI18n,
-  // handleDatabase,
+  handleRefreshCache,
+  handleExport,
+  onSelectionCancel,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
@@ -147,8 +120,46 @@ const {
           >
             新增字典
           </el-button>
+          <el-button
+            type="primary"
+            :icon="useRenderIcon(AddFill)"
+            @click="handleExport()"
+          >
+            导出
+          </el-button>
+          <el-button
+            type="primary"
+            :icon="useRenderIcon(AddFill)"
+            @click="handleRefreshCache()"
+          >
+            刷新缓存
+          </el-button>
         </template>
         <template v-slot="{ size, dynamicColumns }">
+          <div
+            v-if="selectedNum > 0"
+            v-motion-fade
+            class="bg-[var(--el-fill-color-light)] w-full h-[46px] mb-2 pl-4 flex items-center"
+          >
+            <div class="flex-auto">
+              <span
+                style="font-size: var(--el-font-size-base)"
+                class="text-[rgba(42,46,54,0.5)] dark:text-[rgba(220,220,242,0.5)]"
+              >
+                已选 {{ selectedNum }} 项
+              </span>
+              <el-button type="primary" text @click="onSelectionCancel">
+                取消选择
+              </el-button>
+            </div>
+            <el-popconfirm title="是否确认删除?" @confirm="handleDelete">
+              <template #reference>
+                <el-button type="danger" text class="mr-1">
+                  批量删除
+                </el-button>
+              </template>
+            </el-popconfirm>
+          </div>
           <pure-table
             ref="tableRef"
             align-whole="center"
